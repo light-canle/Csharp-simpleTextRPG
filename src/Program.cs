@@ -1,12 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Collections.Generic;
-using System.IO;
-
+﻿using Combat;
 using VariousEntity;
-using Combat;
-using VariousItem;
 
 namespace C__RPG
 {

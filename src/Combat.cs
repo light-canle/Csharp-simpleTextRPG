@@ -1,9 +1,8 @@
-using VariousEntity;
-using VariousItem;
-
-namespace Combat{
+namespace Combat
+{
     // 포션이나 공격이 줄 수 있는 효과
-    public enum EffectType{
+    public enum EffectType
+    {
         // 디버프
         Burn,   // 연소
         Paralysis,  // 마비
@@ -19,10 +18,11 @@ namespace Combat{
         Strengthen, // 강화
         Transparency, // 투명화
         Penetrate, // 투시
-        
+
     }
     // 공격의 종류
-    public enum DamageType{
+    public enum DamageType
+    {
         Normal, // 일반 물리 공격
         Energy,
         Fire,
@@ -33,7 +33,8 @@ namespace Combat{
     }
 
     // 스킬에서 공격의 방식
-    public enum AttackType{
+    public enum AttackType
+    {
         Normal, // 일반 공격
         Magic, // 마법 공격
         Weapon, // 무기 사용
@@ -45,21 +46,24 @@ namespace Combat{
 
 
     // ================================Class - 속성================================
-    public sealed class Resistance{
+    public sealed class Resistance
+    {
         public int Fire { get; private set; }
         public int Electric { get; private set; }
         public int Ice { get; private set; }
         public int Poison { get; private set; }
         public int Acid { get; private set; }
         // ====================생성자====================
-        public Resistance(){
+        public Resistance()
+        {
             Fire = 0;
             Electric = 0;
             Ice = 0;
             Poison = 0;
             Acid = 0;
         }
-        public Resistance(int fire, int electric, int ice, int poison, int acid){
+        public Resistance(int fire, int electric, int ice, int poison, int acid)
+        {
             Fire = fire;
             Electric = electric;
             Ice = ice;
@@ -67,7 +71,8 @@ namespace Combat{
             Acid = acid;
         }
         // ====================메소드====================
-        public Resistance DeepCopy() {
+        public Resistance DeepCopy()
+        {
             Resistance r = new Resistance();
             r.Fire = Fire;
             r.Electric = Electric;
@@ -78,29 +83,34 @@ namespace Combat{
         }
     }
 
-    public sealed class AttackInfo{
-        public AttackInfo(bool isCritical, int damage, DamageType dType){
+    public sealed class AttackInfo
+    {
+        public AttackInfo(bool isCritical, int damage, DamageType dType)
+        {
             IsCritical = isCritical;
             Damage = damage;
             DamageType = dType;
         }
         public bool IsCritical { get; }
-        public int Damage{ get; }
-        public DamageType DamageType{ get; }
+        public int Damage { get; }
+        public DamageType DamageType { get; }
     }
 
-    public sealed class Effect{
+    public sealed class Effect
+    {
         public EffectType Type { get; private set; }
         public int Strength { get; set; }
         public int Duration { get; set; }
         // ====================생성자====================
-        public Effect(EffectType type, int strength, int duration){
+        public Effect(EffectType type, int strength, int duration)
+        {
             Type = type;
             Strength = strength;
             Duration = duration;
         }
         // ====================메소드====================
-        public Effect DeepCopy() {
+        public Effect DeepCopy()
+        {
             Effect e = new Effect(EffectType.Blurry, 0, 0);
             e.Type = Type;
             e.Strength = Strength;
@@ -109,7 +119,8 @@ namespace Combat{
         }
     }
 
-    public sealed class Skill{
+    public sealed class Skill
+    {
         public string Name { get; private set; }
         public AttackType Attack { get; private set; }
         public int? RawMinDamage { get; set; }
@@ -121,8 +132,9 @@ namespace Combat{
         public Effect? GiveEffect { get; set; }
         // ====================생성자====================
         // 일반 공격 생성자 - 효과를 주지 않는 일반적인 대미지 공격
-        public Skill (string name, int min, int max, double crit, double acc, 
-        AttackType attack = AttackType.Normal, DamageType type = Combat.DamageType.Normal){
+        public Skill(string name, int min, int max, double crit, double acc,
+        AttackType attack = AttackType.Normal, DamageType type = Combat.DamageType.Normal)
+        {
             Name = name;
             Attack = attack;
             RawMinDamage = min;
@@ -132,14 +144,16 @@ namespace Combat{
             DamageType = type;
         }
         // 버프 / 디버프 스킬 생성자
-        public Skill(string name, double acc, double effchance, Effect give, AttackType attack = AttackType.Effect){
+        public Skill(string name, double acc, double effchance, Effect give, AttackType attack = AttackType.Effect)
+        {
             Name = name;
             Attack = attack;
             Accuracy = acc;
             EffectChance = effchance;
             GiveEffect = give;
         }
-        public Skill(string name, AttackType attack, int min, int max, double crit, double acc, DamageType type){
+        public Skill(string name, AttackType attack, int min, int max, double crit, double acc, DamageType type)
+        {
             Name = name;
             Attack = attack;
             RawMinDamage = min;
@@ -154,17 +168,19 @@ namespace Combat{
         /// 이 스킬의 대미지를 리턴한다.
         /// AttackType이 Normal, Magic, Weapon, Special(대미지가 있음)일 때만 사용한다.
         /// </summary>
-        public AttackInfo Damage() { 
+        public AttackInfo Damage()
+        {
             Random r = new Random();
             int damage;
-            switch (r.NextDouble()){
+            switch (r.NextDouble())
+            {
                 case double d when d <= CriticalChance:
-                damage = r.Next((int)(RawMaxDamage.GetValueOrDefault() * 1.6), RawMaxDamage.GetValueOrDefault() * 2 + 1);
-                return new AttackInfo(true, damage, DamageType.GetValueOrDefault());
+                    damage = r.Next((int)(RawMaxDamage.GetValueOrDefault() * 1.6), RawMaxDamage.GetValueOrDefault() * 2 + 1);
+                    return new AttackInfo(true, damage, DamageType.GetValueOrDefault());
 
                 default:
-                damage = r.Next(RawMinDamage.GetValueOrDefault(), (RawMaxDamage + 1).GetValueOrDefault());
-                return new AttackInfo(false, damage, DamageType.GetValueOrDefault());
+                    damage = r.Next(RawMinDamage.GetValueOrDefault(), (RawMaxDamage + 1).GetValueOrDefault());
+                    return new AttackInfo(false, damage, DamageType.GetValueOrDefault());
             }
         }
     }

@@ -1,12 +1,14 @@
-using VariousEntity;
 using Combat;
+using VariousEntity;
 
 // TODO : 아이템들을 위한 DeepCopy 메소드
 
-namespace VariousItem{
+namespace VariousItem
+{
 
     // 무기나 방어구에 부여할 수 있는 마법의 종류
-    public enum EnchantmentType{
+    public enum EnchantmentType
+    {
         AttackReinforcement, // 대미지 증가
         Sharpness, // 치명타 확률 증가
         Heavyness, // 치명타 위력 증가
@@ -14,7 +16,8 @@ namespace VariousItem{
     }
 
     // 무기나 방어구의 품질
-    public enum Quality{
+    public enum Quality
+    {
         Broken,
         Weakness,
         Common,
@@ -25,7 +28,8 @@ namespace VariousItem{
     }
 
     // 무기를 장착하는 위치
-    public enum Position{
+    public enum Position
+    {
         Weapon,
         HeadArmor,
         TopArmor,
@@ -37,44 +41,52 @@ namespace VariousItem{
     }
 
     // 스크롤의 효과 종류
-    public enum ScrollType{
+    public enum ScrollType
+    {
         Magic,
         Enchantment,
         Sleep,
     }
 
     // 반지 종류
-    public enum RingType{
+    public enum RingType
+    {
         BaseStatUp,
         ResistanceUp,
         GiveSpecialAbility,
     }
 
-    public sealed class Enchantment{
+    public sealed class Enchantment
+    {
         public EnchantmentType Type { get; private set; }
         public int Level { get; private set; }
 
-        public Enchantment(EnchantmentType type){
+        public Enchantment(EnchantmentType type)
+        {
             Type = type;
         }
 
-        public Enchantment(EnchantmentType type, int level){
+        public Enchantment(EnchantmentType type, int level)
+        {
             Type = type;
             Level = level;
         }
     }
 
-    public class Item : ICloneable{
+    public class Item : ICloneable
+    {
         public string Name { get; protected set; }
         public int Cost { get; protected set; }
-        
+
         // ====================생성자====================
-        public Item(string name, int cost){
+        public Item(string name, int cost)
+        {
             Name = name;
             Cost = cost;
         }
 
-        public virtual object Clone(){
+        public virtual object Clone()
+        {
             Item i = new Item("", 0);
             i.Name = this.Name;
             i.Cost = this.Cost;
@@ -82,20 +94,23 @@ namespace VariousItem{
         }
     }
 
-    public class Equipable : Item{
+    public class Equipable : Item
+    {
         public int Reinforcement { get; set; }
         public Quality Quality { get; set; }
         public Position Position { get; set; }
         public List<Enchantment> EnchantList { get; set; }
 
-        public Equipable(string name, int cost, Position pos, int reinforcement = 0, Quality quality = Quality.Common) : base(name, cost){
+        public Equipable(string name, int cost, Position pos, int reinforcement = 0, Quality quality = Quality.Common) : base(name, cost)
+        {
             Position = pos;
             Reinforcement = reinforcement;
             Quality = quality;
             EnchantList = new List<Enchantment>();
         }
 
-        public override Equipable Clone(){
+        public override Equipable Clone()
+        {
             Equipable e = new Equipable("", 0, Position.Weapon);
             e.Name = this.Name;
             e.Cost = this.Cost;
@@ -107,22 +122,25 @@ namespace VariousItem{
         }
     }
 
-    public class Weapon : Equipable{
+    public class Weapon : Equipable
+    {
         public int RawMinDamage { get; set; }
         public int RawMaxDamage { get; set; }
         public DamageType DamageType { get; set; }
         public double CriticalChance { get; set; }
         public double Accuracy { get; set; }
-        
+
 
         // ====================생성자====================
-        public Weapon() : base("Air", 0, Position.Weapon){
+        public Weapon() : base("Air", 0, Position.Weapon)
+        {
             RawMaxDamage = 0;
             RawMaxDamage = 0;
             CriticalChance = 0;
             Accuracy = 0;
         }
-        public Weapon(string name, int cost, int min, int max, int critical, int accuracy, Quality quality) : base(name, cost, Position.Weapon, 0, quality){
+        public Weapon(string name, int cost, int min, int max, int critical, int accuracy, Quality quality) : base(name, cost, Position.Weapon, 0, quality)
+        {
             RawMaxDamage = min;
             RawMaxDamage = max;
             CriticalChance = critical;
@@ -132,7 +150,8 @@ namespace VariousItem{
         /// <summary>
         /// 이 무기의 기본 대미지를 반환한다.
         /// </summary>
-        public AttackInfo Attack(){ 
+        public AttackInfo Attack()
+        {
             Random rand = new Random();
             int minDamage = RawMinDamage + Reinforcement;
             int maxDamage = RawMaxDamage + 2 * Reinforcement;
@@ -151,7 +170,8 @@ namespace VariousItem{
             }
         }
 
-        public Weapon DeepCopy(){
+        public Weapon DeepCopy()
+        {
             Weapon w = new Weapon();
             w.RawMaxDamage = RawMaxDamage;
             w.RawMinDamage = RawMinDamage;
@@ -165,58 +185,70 @@ namespace VariousItem{
         }
     }
 
-    public class Armor : Equipable{
+    public class Armor : Equipable
+    {
         public int AC { get; set; }
         public int MR { get; set; }
-        public Resistance Resistance {get; set;}
+        public Resistance Resistance { get; set; }
 
         // ====================생성자====================
-        public Armor(string name, int cost, int ac, int mr, Position pos, Quality quality) : base(name, cost, pos, 0, quality) {
+        public Armor(string name, int cost, int ac, int mr, Position pos, Quality quality) : base(name, cost, pos, 0, quality)
+        {
             AC = ac;
             MR = mr;
             Resistance = new Resistance();
         }
 
-        public Armor(string name, int cost, int ac, int mr, Position pos, int reinforcement, Quality quality, Resistance r) : base(name, cost, pos, reinforcement, quality){
+        public Armor(string name, int cost, int ac, int mr, Position pos, int reinforcement, Quality quality, Resistance r) : base(name, cost, pos, reinforcement, quality)
+        {
             AC = ac;
             MR = mr;
             Resistance = r.DeepCopy();
         }
     }
 
-    public class Accessory : Equipable{
+    public class Accessory : Equipable
+    {
         public RingType Type { get; private set; }
-        public Accessory(string name, int cost, Position pos, RingType type) : base(name, cost, pos, 0, Quality.Common){
+        public Accessory(string name, int cost, Position pos, RingType type) : base(name, cost, pos, 0, Quality.Common)
+        {
             Type = type;
         }
     }
 
-    public class Potion : Item{
+    public class Potion : Item
+    {
         public Effect Effect { get; protected set; }
 
-        public Potion(string name, int cost, Effect effect) : base(name, cost){
+        public Potion(string name, int cost, Effect effect) : base(name, cost)
+        {
             Effect = effect.DeepCopy();
         }
 
         /// <summary>
         /// 해당 포션을 사용한다.
         /// </summary>
-        public void Consume(Entity e){
+        public void Consume(Entity e)
+        {
             e.AddEffect(Effect);
         }
     }
 
-    public class Scroll : Item{
+    public class Scroll : Item
+    {
         public ScrollType Type { get; protected set; }
         public Skill? Skill { get; protected set; }
-        public Scroll(string name, int cost, ScrollType type, Skill? skill = null) : base(name, cost){
+        public Scroll(string name, int cost, ScrollType type, Skill? skill = null) : base(name, cost)
+        {
             Type = type;
             Skill = skill;
         }
-        public void Consume(Entity e){
-            switch(Type){
+        public void Consume(Entity e)
+        {
+            switch (Type)
+            {
                 case ScrollType.Magic:
-                    if(Skill == null) 
+                    if (Skill == null)
                         throw new NullReferenceException("Scroll.Consume() : 스크롤의 타입이 Magic이지만, 대응되는 Skill이 없습니다.");
                     // 대응하는 Skill을 사용한다.
                     break;
