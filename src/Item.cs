@@ -1,7 +1,7 @@
 using Combat;
 using VariousEntity;
 
-// TODO : 아이템들을 위한 DeepCopy 메소드
+// TODO : 아이템들을 위한 Clone 메소드
 
 namespace VariousItem
 {
@@ -56,7 +56,7 @@ namespace VariousItem
         GiveSpecialAbility,
     }
 
-    public sealed class Enchantment
+    public sealed class Enchantment : ICloneable
     {
         public EnchantmentType Type { get; private set; }
         public int Level { get; private set; }
@@ -70,6 +70,11 @@ namespace VariousItem
         {
             Type = type;
             Level = level;
+        }
+
+        public object Clone()
+        {
+            return new Enchantment(Type, Level);
         }
     }
 
@@ -170,7 +175,7 @@ namespace VariousItem
             }
         }
 
-        public Weapon DeepCopy()
+        public override Weapon Clone()
         {
             Weapon w = new Weapon();
             w.RawMaxDamage = RawMaxDamage;
@@ -178,9 +183,15 @@ namespace VariousItem
             w.DamageType = DamageType;
             w.CriticalChance = CriticalChance;
             w.Accuracy = Accuracy;
+
             w.Reinforcement = Reinforcement;
             w.Quality = Quality;
+            w.Position = Position;
             w.EnchantList = EnchantList.ToList();
+
+            w.Cost = Cost;
+            w.Name = Name;
+
             return w;
         }
     }
@@ -203,8 +214,11 @@ namespace VariousItem
         {
             AC = ac;
             MR = mr;
-            Resistance = r.DeepCopy();
+            Resistance = (Resistance)r.Clone();
         }
+
+        // ====================메소드====================
+
     }
 
     public class Accessory : Equipable
@@ -216,25 +230,33 @@ namespace VariousItem
         }
     }
 
-    public class Potion : Item
+    public abstract class Consumable : Item
+    {
+        public Consumable(string name, int cost) : base(name, cost)
+        {
+        }
+        public abstract void Consume(Creature e);
+    }
+
+    public class Potion : Consumable
     {
         public Effect Effect { get; protected set; }
 
         public Potion(string name, int cost, Effect effect) : base(name, cost)
         {
-            Effect = effect.DeepCopy();
+            Effect = (Effect)effect.Clone();
         }
 
         /// <summary>
         /// 해당 포션을 사용한다.
         /// </summary>
-        public void Consume(Entity e)
+        public override void Consume(Creature e)
         {
             e.AddEffect(Effect);
         }
     }
 
-    public class Scroll : Item
+    public class Scroll : Consumable
     {
         public ScrollType Type { get; protected set; }
         public Skill? Skill { get; protected set; }
@@ -243,7 +265,7 @@ namespace VariousItem
             Type = type;
             Skill = skill;
         }
-        public void Consume(Entity e)
+        public override void Consume(Creature e)
         {
             switch (Type)
             {
@@ -251,6 +273,7 @@ namespace VariousItem
                     if (Skill == null)
                         throw new NullReferenceException("Scroll.Consume() : 스크롤의 타입이 Magic이지만, 대응되는 Skill이 없습니다.");
                     // 대응하는 Skill을 사용한다.
+
                     break;
                 case ScrollType.Enchantment:
                     // TODO : 선택한 아이템 강화함

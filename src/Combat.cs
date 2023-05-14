@@ -43,10 +43,8 @@ namespace Combat
         Speical, // 특수 공격
     }
 
-
-
     // ================================Class - 속성================================
-    public sealed class Resistance
+    public sealed class Resistance : ICloneable
     {
         public int Fire { get; private set; }
         public int Electric { get; private set; }
@@ -71,7 +69,7 @@ namespace Combat
             Acid = acid;
         }
         // ====================메소드====================
-        public Resistance DeepCopy()
+        public object Clone()
         {
             Resistance r = new Resistance();
             r.Fire = Fire;
@@ -96,7 +94,7 @@ namespace Combat
         public DamageType DamageType { get; }
     }
 
-    public sealed class Effect
+    public sealed class Effect : ICloneable
     {
         public EffectType Type { get; private set; }
         public int Strength { get; set; }
@@ -109,7 +107,7 @@ namespace Combat
             Duration = duration;
         }
         // ====================메소드====================
-        public Effect DeepCopy()
+        public object Clone()
         {
             Effect e = new Effect(EffectType.Blurry, 0, 0);
             e.Type = Type;

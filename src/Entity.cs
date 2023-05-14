@@ -3,9 +3,18 @@ using VariousItem;
 
 namespace VariousEntity
 {
-    public class Entity
+    public class Entity : ICloneable
     {
         public string? Name { get; protected set; }
+        public Entity(string? name) {
+            Name = name;
+        }
+        public virtual object Clone() { 
+            return new Entity(Name);
+        }
+    }
+    public class Creature : Entity
+    {
         protected int hp;
         protected int mp;
         public int HP
@@ -58,9 +67,8 @@ namespace VariousEntity
         public Resistance Resistance { get; protected set; }
 
         // ====================생성자====================
-        public Entity(string name)
+        public Creature(string name) : base(name)
         {
-            Name = name;
             MaxHP = 20;
             HP = MaxHP;
             MaxMP = 6;
@@ -75,9 +83,8 @@ namespace VariousEntity
             Resistance = new Resistance();
         }
 
-        public Entity(string name, int hp, int mp, int strength, int agility, int spell, int ac, int mr)
+        public Creature(string name, int hp, int mp, int strength, int agility, int spell, int ac, int mr) : base(name)
         {
-            Name = name;
             MaxHP = hp;
             HP = MaxHP;
             MaxMP = mp;
@@ -96,12 +103,12 @@ namespace VariousEntity
         /// <summary>
         /// 인자로 받은 다른 엔티티를 공격한다.
         /// </summary>
-        public virtual void Attack(ref Entity e, Skill skill)
+        public virtual void Attack(ref Creature c, Skill skill)
         {
             switch (skill.Attack)
             {
                 case AttackType.Normal:
-                    e.ApplyDamage(skill.Damage());
+                    c.ApplyDamage(skill.Damage());
                     break;
             }
         }
@@ -271,7 +278,7 @@ namespace VariousEntity
             {
                 case Position.Weapon:
                     Weapon? w = new Weapon();
-                    w = EquippedWeapon?.DeepCopy() ?? null;
+                    w = EquippedWeapon?.Clone() ?? null;
                     return w;
                 default:
                     throw new ArgumentException("UnEquip : Position enum을 이용해 적절한 인자를 넣어주세요.");
