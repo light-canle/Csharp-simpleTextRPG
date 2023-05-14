@@ -218,24 +218,52 @@ namespace VariousItem
         }
 
         // ====================메소드====================
-
+        public override Armor Clone()
+        {
+            return new Armor(Name, Cost, AC, MR, Position, Quality);
+        }
     }
 
     public class Accessory : Equipable
     {
         public RingType Type { get; private set; }
-        public Accessory(string name, int cost, Position pos, RingType type) : base(name, cost, pos, 0, Quality.Common)
+        public Stat? ChangeStats { get; private set; }
+        public Resistance? Resistance { get; private set; }
+        public Accessory(string name, int cost, RingType type, Stat? stat = null,
+            Resistance? resistance = null) : base(name, cost, Position.FirstAccessory, 0, Quality.Common)
         {
+            // 우선 첫 번째 위치로 지정 - 엔티티에서 장착할 때 바뀐다.
+            Position = Position.FirstAccessory;
             Type = type;
+            switch(type)
+            {
+                case RingType.BaseStatUp:
+                    ChangeStats = (Stat?)stat?.Clone() 
+                        ?? throw new ArgumentNullException("Accessory : RingType이 BaseStatUp이지만 stat인자가 null입니다."); ;
+                    break;
+                case RingType.ResistanceUp:
+                    Resistance = (Resistance?)resistance?.Clone() 
+                        ?? throw new ArgumentNullException("Accessory : RingType이 ResistanceUp이지만 resistance인자가 null입니다.");
+                    break;
+                default:
+                    throw new ArgumentException("Accessory : 잘못된 RingType입니다.");
+            }
+        }
+
+        public override Accessory Clone()
+        {
+            return new Accessory(Name, Cost, Type, ChangeStats, Resistance);
         }
     }
 
-    public abstract class Consumable : Item
+    public class Consumable : Item
     {
         public Consumable(string name, int cost) : base(name, cost)
         {
         }
-        public abstract void Consume(Creature e);
+        public virtual void Consume(Creature e) { 
+        
+        }
     }
 
     public class Potion : Consumable
@@ -253,6 +281,11 @@ namespace VariousItem
         public override void Consume(Creature e)
         {
             e.AddEffect(Effect);
+        }
+
+        public override Potion Clone()
+        {
+            return new Potion(Name, Cost, Effect);
         }
     }
 
@@ -279,6 +312,11 @@ namespace VariousItem
                     // TODO : 선택한 아이템 강화함
                     break;
             }
+        }
+
+        public override Scroll Clone()
+        {
+            return new Scroll(Name, Cost, Type, Skill);
         }
     }
 }

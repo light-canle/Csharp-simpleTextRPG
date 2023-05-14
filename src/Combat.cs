@@ -46,52 +46,51 @@ namespace Combat
     // ================================Class - 속성================================
     public sealed class Resistance : ICloneable
     {
-        public int Fire { get; private set; }
-        public int Electric { get; private set; }
-        public int Ice { get; private set; }
-        public int Poison { get; private set; }
-        public int Acid { get; private set; }
+        public int BaseFire { get; set; }
+        public int BaseElectric { get; set; }
+        public int BaseIce { get; set; }
+        public int BasePoison { get; set; }
+        public int BaseAcid { get; set; }
+        public int Fire { get; set; }
+        public int Electric { get; set; }
+        public int Ice { get; set; }
+        public int Poison { get; set; }
+        public int Acid { get; set; }
         // ====================생성자====================
-        public Resistance()
+
+        public Resistance(int fire = 0, int electric = 0, int ice = 0, int poison = 0, int acid = 0)
         {
-            Fire = 0;
-            Electric = 0;
-            Ice = 0;
-            Poison = 0;
-            Acid = 0;
-        }
-        public Resistance(int fire, int electric, int ice, int poison, int acid)
-        {
-            Fire = fire;
-            Electric = electric;
-            Ice = ice;
-            Poison = poison;
-            Acid = acid;
+            BaseFire = fire;
+            BaseElectric = electric;
+            BaseIce = ice;
+            BasePoison = poison;
+            BaseAcid = acid;
+
+            Fire = BaseFire;
+            Electric = BaseElectric;
+            Ice = BaseIce;
+            Poison = BasePoison;
+            Acid = BaseAcid;
         }
         // ====================메소드====================
         public object Clone()
         {
-            Resistance r = new Resistance();
-            r.Fire = Fire;
-            r.Electric = Electric;
-            r.Ice = Ice;
-            r.Poison = Poison;
-            r.Acid = Acid;
-            return r;
+            return new Resistance(fire : BaseFire, electric : BaseElectric,
+                ice : BaseIce, poison : BasePoison, acid : BaseAcid);
         }
     }
 
     public sealed class AttackInfo
     {
+        public bool IsCritical { get; }
+        public int Damage { get; }
+        public DamageType DamageType { get; }
         public AttackInfo(bool isCritical, int damage, DamageType dType)
         {
             IsCritical = isCritical;
             Damage = damage;
             DamageType = dType;
         }
-        public bool IsCritical { get; }
-        public int Damage { get; }
-        public DamageType DamageType { get; }
     }
 
     public sealed class Effect : ICloneable
@@ -100,7 +99,7 @@ namespace Combat
         public int Strength { get; set; }
         public int Duration { get; set; }
         // ====================생성자====================
-        public Effect(EffectType type, int strength, int duration)
+        public Effect(EffectType type = EffectType.Blurry, int strength = 1, int duration = 0)
         {
             Type = type;
             Strength = strength;
@@ -109,11 +108,7 @@ namespace Combat
         // ====================메소드====================
         public object Clone()
         {
-            Effect e = new Effect(EffectType.Blurry, 0, 0);
-            e.Type = Type;
-            e.Strength = Strength;
-            e.Duration = Duration;
-            return e;
+            return new Effect(type : Type, strength : Strength, duration : Duration);
         }
     }
 

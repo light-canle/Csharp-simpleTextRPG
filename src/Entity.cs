@@ -3,24 +3,14 @@ using VariousItem;
 
 namespace VariousEntity
 {
-    public class Entity : ICloneable
+    public class Stat : ICloneable
     {
-        public string? Name { get; protected set; }
-        public Entity(string? name) {
-            Name = name;
-        }
-        public virtual object Clone() { 
-            return new Entity(Name);
-        }
-    }
-    public class Creature : Entity
-    {
-        protected int hp;
-        protected int mp;
+        public int hp;
+        public int mp;
         public int HP
         {
             get { return hp; }
-            protected set
+            set
             {
                 if (value >= MaxHP)
                 {
@@ -39,7 +29,7 @@ namespace VariousEntity
         public int MP
         {
             get { return mp; }
-            protected set
+            set
             {
                 if (value >= MaxMP)
                 {
@@ -55,13 +45,63 @@ namespace VariousEntity
                 }
             }
         }
+        public int BaseMaxHP { get; set; }
+        public int BaseMaxMP { get; set; }
+        public int BaseStrength { get; set; }
+        public int BaseAgility { get; set; }
+        public int BaseSpell { get; set; }
+        public int BaseAC { get; set; }
+        public int BaseMR { get; set; }
         public int MaxHP { get; set; }
         public int MaxMP { get; set; }
-        public int Strength { get; protected set; }
-        public int Agility { get; protected set; }
-        public int Spell { get; protected set; }
-        public int AC { get; protected set; }
-        public int MR { get; protected set; }
+        public int Strength { get; set; }
+        public int Agility { get; set; }
+        public int Spell { get; set; }
+        public int AC { get; set; }
+        public int MR { get; set; }
+        public Stat(int hp = 20, int mp = 6, int strength = 5, int agility = 5, int spell = 5, int ac = 0, int mr = 0)
+        {
+            BaseMaxHP = hp;
+            MaxHP = BaseMaxHP;
+            HP = MaxHP;
+
+            BaseMaxMP = mp;
+            MaxMP = BaseMaxMP;
+            MP = MaxMP;
+
+            BaseStrength = strength;
+            BaseAgility = agility;
+            BaseSpell = spell;
+            BaseAC = ac;
+            BaseMR = mr;
+
+            Strength = BaseStrength;
+            Agility = BaseAgility;
+            Spell = BaseSpell;
+            AC = BaseAC;
+            MR = BaseMR;
+        }
+
+        public object Clone()
+        {
+            return new Stat(hp : BaseMaxHP, mp : BaseMaxMP, 
+                strength: BaseStrength, agility: BaseAgility, 
+                spell: BaseSpell, ac: BaseAC, mr: BaseMR);
+        }
+    }
+    public class Entity : ICloneable
+    {
+        public string? Name { get; protected set; }
+        public Entity(string? name) {
+            Name = name;
+        }
+        public virtual object Clone() { 
+            return new Entity(Name);
+        }
+    }
+    public class Creature : Entity
+    {
+        public Stat Stat { get; protected set; }
         public List<Effect> Effects { get; protected set; }
         public List<Skill> Abilities { get; protected set; }
         public Resistance Resistance { get; protected set; }
@@ -69,15 +109,7 @@ namespace VariousEntity
         // ====================생성자====================
         public Creature(string name) : base(name)
         {
-            MaxHP = 20;
-            HP = MaxHP;
-            MaxMP = 6;
-            MP = MaxMP;
-            Strength = 5;
-            Agility = 5;
-            Spell = 5;
-            AC = 0;
-            MR = 0;
+            Stat = new Stat();
             Effects = new List<Effect>();
             Abilities = new List<Skill>();
             Resistance = new Resistance();
@@ -85,15 +117,8 @@ namespace VariousEntity
 
         public Creature(string name, int hp, int mp, int strength, int agility, int spell, int ac, int mr) : base(name)
         {
-            MaxHP = hp;
-            HP = MaxHP;
-            MaxMP = mp;
-            MP = MaxMP;
-            Strength = strength;
-            Agility = agility;
-            Spell = spell;
-            AC = ac;
-            MR = mr;
+            Stat = new Stat(hp : hp, mp : mp, strength : strength,
+                agility : agility, spell : spell, ac : ac, mr : mr);
             Effects = new List<Effect>();
             Abilities = new List<Skill>();
             Resistance = new Resistance();
@@ -101,7 +126,7 @@ namespace VariousEntity
 
         // ====================메소드====================
         /// <summary>
-        /// 인자로 받은 다른 엔티티를 공격한다.
+        /// 인자로 받은 다른 크리쳐를 공격한다.
         /// </summary>
         public virtual void Attack(ref Creature c, Skill skill)
         {
@@ -125,10 +150,10 @@ namespace VariousEntity
             switch (attackInfo.DamageType)
             {
                 case DamageType.Normal:
-                    final_damage -= rand.Next(AC / 2, AC + 1);
+                    final_damage -= rand.Next(Stat.AC / 2, Stat.AC + 1);
                     break;
                 default:
-                    final_damage -= rand.Next(MR / 3, MR + 1);
+                    final_damage -= rand.Next(Stat.MR / 3, Stat.MR + 1);
                     break;
             }
             // 만약 공격 타입이 원소 공격이고, 적절한 원소 저항이 있는 경우
@@ -146,7 +171,7 @@ namespace VariousEntity
                     break;
             }
             // 최종 대미지만큼 체력을 감소시킨다.
-            HP = HP - final_damage;
+            Stat.HP = Stat.HP - final_damage;
         }
 
 
@@ -169,7 +194,7 @@ namespace VariousEntity
                     case EffectType.Burn:
                         // 불 저항 O : 저항% 만큼 대미지 감소
                         // 불 저항 X : 체력의 Lv * 2 ~ Lv * 4% 만큼 피해를 입힘
-                        HP -= (int)rand.NextDouble();
+                        Stat.HP -= (int)rand.NextDouble();
                         break;
 
                 }
@@ -236,7 +261,7 @@ namespace VariousEntity
         /// </summary>
     }
 
-    public class ArmedEntity : Entity
+    public class ArmedEntity : Creature
     {
         public Weapon? EquippedWeapon { get; private set; }
         public Armor?[] EquippedArmors { get; }
@@ -260,6 +285,7 @@ namespace VariousEntity
                     {
                         UnEquip<Weapon>(Position.Weapon);
                     }
+                    StatUpdate();
                     break;
                 case Armor a:
 
@@ -274,14 +300,56 @@ namespace VariousEntity
         /// </summary>
         public Equipable? UnEquip<T>(Position pos) where T : Equipable
         {
+            Armor? a;
+            Weapon? w;
+            Accessory? ac;
             switch (pos)
             {
                 case Position.Weapon:
-                    Weapon? w = new Weapon();
-                    w = EquippedWeapon?.Clone() ?? null;
+                    w = EquippedWeapon?.Clone() ?? throw new Exception("UnEquip : 장착 해제할 무기가 없습니다.");
+                    EquippedWeapon = null;
+                    StatUpdate();
                     return w;
+                case Position.HeadArmor:
+                    a = EquippedArmors?[0]?.Clone() ?? throw new Exception("UnEquip : 장착 해제할 방어구가 없습니다.");
+                    return a;
+                case Position.TopArmor:
+                    a = EquippedArmors?[1]?.Clone() ?? throw new Exception("UnEquip : 장착 해제할 방어구가 없습니다.");
+                    return a;
+                case Position.BottomArmor:
+                    a = EquippedArmors?[2]?.Clone() ?? throw new Exception("UnEquip : 장착 해제할 방어구가 없습니다.");
+                    return a;
+                case Position.FirstAccessory:
+                    ac = EquippedAccessories?[0]?.Clone() ?? throw new Exception("UnEquip : 장착 해제할 장신구가 없습니다.");
+                    StatUpdate();
+                    return ac;
                 default:
                     throw new ArgumentException("UnEquip : Position enum을 이용해 적절한 인자를 넣어주세요.");
+            }
+        }
+
+        public void StatUpdate()
+        {
+            // 방어력, 속성 저항
+            Stat.AC = Stat.BaseAC;
+            Stat.MR = Stat.BaseMR;
+
+            Resistance.Fire = Resistance.BaseFire;
+            Resistance.Electric = Resistance.BaseElectric;
+            Resistance.Ice = Resistance.BaseIce;
+            Resistance.Poison = Resistance.BasePoison;
+            Resistance.Acid = Resistance.BaseAcid;
+
+            for (int i = 0; i < EquippedArmors.Length; i++)
+            {
+                Stat.AC += EquippedArmors[i]?.AC ?? 0;
+                Stat.MR += EquippedArmors[i]?.MR ?? 0;
+
+                Resistance.Fire += EquippedArmors[i]?.Resistance.Fire ?? 0;
+                Resistance.Electric += EquippedArmors[i]?.Resistance.Electric ?? 0;
+                Resistance.Ice += EquippedArmors[i]?.Resistance.Ice ?? 0;
+                Resistance.Poison += EquippedArmors[i]?.Resistance.Poison ?? 0;
+                Resistance.Acid += EquippedArmors[i]?.Resistance.Acid ?? 0;
             }
         }
     }
