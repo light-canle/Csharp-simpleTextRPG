@@ -7,6 +7,7 @@ Combat.cs
 Item.cs
 - Accessory
 	1. GiveSpecialAbility type의 반지 구현
+아이템(Equipable)에 인챈트를 하고/인챈트 효과를 적용하는 메소드 추가
 
 Entity.cs
 - ArmedEntity

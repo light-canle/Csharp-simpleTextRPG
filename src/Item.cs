@@ -13,6 +13,9 @@ namespace VariousItem
         Sharpness, // 치명타 확률 증가
         Heavyness, // 치명타 위력 증가
         Accuracy, // 정확도 증가
+        Hardness, // 방어력(AC) 증가
+        AntiMagic, // 마법 저항(MR) 증가
+
     }
 
     // 무기나 방어구의 품질
@@ -125,6 +128,19 @@ namespace VariousItem
             e.EnchantList = this.EnchantList.ConvertAll(en => new Enchantment(en.Type, en.Level));
             return e;
         }
+        /// <summary>
+        /// 인자로 받은 인챈트 추가
+        /// (!중요) 장착 가능한 무기의 종류(무기, 방어구, 장신구)에 따라
+        /// 할 수 있는 인챈트들의 종류가 다르므로, 자식 클래스에서는
+        /// 반드시 이 메소드를 오버라이드 해서 구현할 것
+        /// </summary>
+        /// <param name="enchant">추가할 인챈트</param>
+        public virtual void Enchant(Enchantment enchant)
+        {
+            EnchantList.Add(enchant);
+        }
+
+        public virtual void UpdateEnchant() { }
     }
 
     public class Weapon : Equipable
@@ -187,12 +203,28 @@ namespace VariousItem
             w.Reinforcement = Reinforcement;
             w.Quality = Quality;
             w.Position = Position;
-            w.EnchantList = EnchantList.ToList();
+            w.EnchantList = EnchantList.ConvertAll(en => new Enchantment(en.Type, en.Level));
 
             w.Cost = Cost;
             w.Name = Name;
 
             return w;
+        }
+
+        public override void Enchant(Enchantment enchant)
+        {
+            switch (enchant.Type)
+            {
+                case EnchantmentType.Sharpness:
+                case EnchantmentType.AttackReinforcement:
+                case EnchantmentType.Heavyness:
+                case EnchantmentType.Accuracy:
+                    base.Enchant(enchant);
+                    break;
+
+                default:
+                    throw new ArgumentException("Weapon.Enchant : 무기에 할 수 없는 인챈트입니다.");
+            }
         }
     }
 
