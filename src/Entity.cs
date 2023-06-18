@@ -265,18 +265,20 @@ namespace VariousEntity
     {
         public Weapon? EquippedWeapon { get; private set; }
         public Armor?[] EquippedArmors { get; }
-        public Accessory?[] EquippedAccessories { get; set; }
+        public List<Accessory> EquippedAccessories { get; set; }
         public ArmedEntity(string name) : base(name)
         {
             EquippedWeapon = null;
             EquippedArmors = new Armor[3];
-            EquippedAccessories = new Accessory[4];
+            EquippedAccessories = new List<Accessory>();
         }
 
         /// <summary>
         /// 무기/아이템을 장착한다.
         /// </summary>
-        public void Equip<T>(T obj) where T : Item
+        /// <typeparam name="T">장착 가능한 아이템만 인자로 넣을 수 있다.</typeparam>
+        /// <param name="obj">장착 하려는 장비</param>
+        public void Equip<T>(T obj) where T : Equipable
         {
             switch (obj)
             {
@@ -288,9 +290,26 @@ namespace VariousEntity
                     StatUpdate();
                     break;
                 case Armor a:
-
+                    switch (a.Position)
+                    {
+                        case Position.HeadArmor:
+                            if (EquippedArmors[0] != null) UnEquip<Armor>(Position.HeadArmor);
+                            break;
+                        case Position.TopArmor:
+                            if (EquippedArmors[1] != null) UnEquip<Armor>(Position.TopArmor);
+                            break;
+                        case Position.BottomArmor:
+                            if (EquippedArmors[2] != null) UnEquip<Armor>(Position.BottomArmor);
+                            break;
+                    }
+                    StatUpdate();
                     break;
                 case Accessory a:
+                    if (EquippedAccessories.Count < 4)
+                    {
+                        EquippedAccessories.Append(a);
+                    }
+                    StatUpdate();
                     break;
             }
         }
@@ -298,7 +317,13 @@ namespace VariousEntity
         /// <summary>
         /// 무기/아이템의 장착을 해제한다.
         /// </summary>
-        public Equipable? UnEquip<T>(Position pos) where T : Equipable
+        /// <typeparam name="T"></typeparam>
+        /// <param name="pos">무기/방어구/장신구 중 어느 것을 해제할 것인지 여부</param>
+        /// <param name="accPos">(장신구인 경우) 위치(인덱스)</param>
+        /// <returns>장착 해제한 장비를 반환</returns>
+        /// <exception cref="Exception">해제하려는 장비가 null인 경우 예외 반환</exception>
+        /// <exception cref="ArgumentException">올바르지 않은 Position인 경우 반환</exception>
+        public Equipable? UnEquip<T>(Position pos, int accPos = 0) where T : Equipable
         {
             Armor? a;
             Weapon? w;
@@ -312,15 +337,22 @@ namespace VariousEntity
                     return w;
                 case Position.HeadArmor:
                     a = EquippedArmors?[0]?.Clone() ?? throw new Exception("UnEquip : 장착 해제할 방어구가 없습니다.");
+                    EquippedArmors[0] = null;
+                    StatUpdate();
                     return a;
                 case Position.TopArmor:
                     a = EquippedArmors?[1]?.Clone() ?? throw new Exception("UnEquip : 장착 해제할 방어구가 없습니다.");
+                    EquippedArmors[1] = null;
+                    StatUpdate();
                     return a;
                 case Position.BottomArmor:
                     a = EquippedArmors?[2]?.Clone() ?? throw new Exception("UnEquip : 장착 해제할 방어구가 없습니다.");
+                    EquippedArmors[2] = null;
+                    StatUpdate();
                     return a;
-                case Position.FirstAccessory:
-                    ac = EquippedAccessories?[0]?.Clone() ?? throw new Exception("UnEquip : 장착 해제할 장신구가 없습니다.");
+                case Position.Accessory:
+                    ac = EquippedAccessories[accPos].Clone() ?? throw new Exception("UnEquip : 장착 해제할 장신구가 없습니다.");
+                    EquippedAccessories.RemoveAt(accPos);
                     StatUpdate();
                     return ac;
                 default:
@@ -328,6 +360,9 @@ namespace VariousEntity
             }
         }
 
+        /// <summary>
+        /// 새 장비를 해제/장착 했을 때 사용 - 장비한 아이템의 능력치 변화를 반영한다.
+        /// </summary>
         public void StatUpdate()
         {
             // 방어력, 속성 저항
@@ -350,6 +385,18 @@ namespace VariousEntity
                 Resistance.Ice += EquippedArmors[i]?.Resistance.Ice ?? 0;
                 Resistance.Poison += EquippedArmors[i]?.Resistance.Poison ?? 0;
                 Resistance.Acid += EquippedArmors[i]?.Resistance.Acid ?? 0;
+            }
+
+            for (int i = 0; i < EquippedAccessories.Count; i++)
+            {
+                Stat.AC += EquippedAccessories[i].ChangeStats?.AC ?? 0;
+                Stat.MR += EquippedAccessories[i].ChangeStats?.MR ?? 0;
+
+                Resistance.Fire += EquippedAccessories[i].Resistance?.Fire ?? 0;
+                Resistance.Electric += EquippedAccessories[i].Resistance?.Electric ?? 0;
+                Resistance.Ice += EquippedAccessories[i].Resistance?.Ice ?? 0;
+                Resistance.Poison += EquippedAccessories[i].Resistance?.Poison ?? 0;
+                Resistance.Acid += EquippedAccessories[i].Resistance?.Acid ?? 0;
             }
         }
     }

@@ -37,10 +37,7 @@ namespace VariousItem
         HeadArmor,
         TopArmor,
         BottomArmor,
-        FirstAccessory,
-        SecondAccessory,
-        ThirdAccessory,
-        FourthAccessory,
+        Accessory,
     }
 
     // 스크롤의 효과 종류
@@ -59,6 +56,7 @@ namespace VariousItem
         GiveSpecialAbility,
     }
 
+    // 인챈트 클래스
     public sealed class Enchantment : ICloneable
     {
         public EnchantmentType Type { get; private set; }
@@ -262,10 +260,10 @@ namespace VariousItem
         public Stat? ChangeStats { get; private set; }
         public Resistance? Resistance { get; private set; }
         public Accessory(string name, int cost, RingType type, Stat? stat = null,
-            Resistance? resistance = null) : base(name, cost, Position.FirstAccessory, 0, Quality.Common)
+            Resistance? resistance = null) : base(name, cost, Position.Accessory, 0, Quality.Common)
         {
-            // 우선 첫 번째 위치로 지정 - 엔티티에서 장착할 때 바뀐다.
-            Position = Position.FirstAccessory;
+            
+            Position = Position.Accessory;
             Type = type;
             switch(type)
             {
