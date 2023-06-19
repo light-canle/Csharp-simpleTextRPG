@@ -8,7 +8,7 @@ using VariousItem;
 
 namespace Utils
 {
-    public class UI
+    public class TUI
     {
         /// <summary>
         /// 콘솔 창의 글자 색을 바꾼다.
@@ -40,8 +40,9 @@ namespace Utils
         /// <param name="c">크리쳐</param>
         public static void print_stat(Creature c)
         {
+            Console.WriteLine(c.Name);
             // HP에 따른 하트 수 계산
-            double hp_percent = c.Stat.HP / c.Stat.MaxHP;
+            double hp_percent = (double)c.Stat.HP / c.Stat.MaxHP;
             int heart_count = (c.Stat.HP == c.Stat.MaxHP) ? 10 : (int)Math.Ceiling(hp_percent / (1.0 / 9.0));
             string s = "";
             for (int i = 0; i < heart_count; i++) s += "♥";
@@ -49,14 +50,14 @@ namespace Utils
             // 정확한 수치 표시
             s += " " + c.Stat.HP.ToString() + "/" + c.Stat.MaxHP.ToString();
             // 남은 hp 양에 따라 색을 달리함
-            if (heart_count > 5) UI.TextColor(0, 255, 0);
-            else if (heart_count > 2) UI.TextColor(255, 255, 0);
-            else UI.TextColor(255, 0, 0);
+            if (heart_count > 5) TUI.TextColor(0, 255, 0);
+            else if (heart_count > 2) TUI.TextColor(255, 255, 0);
+            else TUI.TextColor(255, 0, 0);
 
             Console.WriteLine(s);
 
             // MP에 따른 별 개수 계산
-            double mp_percent = c.Stat.MP / c.Stat.MaxMP;
+            double mp_percent = (double)c.Stat.MP / c.Stat.MaxMP;
             int mp_count = (c.Stat.MP == c.Stat.MaxMP) ? 10 : (int)Math.Ceiling(mp_percent / (1.0 / 9.0));
             s = "";
             for (int i = 0; i < mp_count; i++) s += "★";
@@ -64,8 +65,10 @@ namespace Utils
             // 수치 표시
             s += " " + c.Stat.MP.ToString() + "/" + c.Stat.MaxMP.ToString();
 
-            UI.TextColor(0, 255, 255);
+            TUI.TextColor(0, 255, 255);
             Console.WriteLine(s);
+
+            TUI.TextColor(255, 255, 255);
         }
     }
 }

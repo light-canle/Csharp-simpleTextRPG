@@ -128,14 +128,17 @@ namespace VariousEntity
         /// <summary>
         /// 인자로 받은 다른 크리쳐를 공격한다.
         /// </summary>
-        public virtual void Attack(ref Creature c, Skill skill)
+        public virtual AttackInfo Attack(ref Creature c, Skill skill)
         {
+            
             switch (skill.Attack)
             {
                 case AttackType.Normal:
-                    c.ApplyDamage(skill.Damage());
-                    break;
+                    AttackInfo info = skill.Damage();
+                    c.ApplyDamage(info);
+                    return info;
             }
+            return new AttackInfo(false, 0, DamageType.Normal);
         }
 
         /// <summary>

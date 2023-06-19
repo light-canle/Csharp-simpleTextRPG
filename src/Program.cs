@@ -8,13 +8,17 @@ namespace C__RPG
     {
         static void Main(string[] args)
         {
-            Creature e1 = new Creature("aa", 20, 10, 6, 6, 6, 0, 0);
-            Creature e2 = new Creature("bb", 25, 10, 5, 6, 7, 1, 0);
-            Skill s1 = new Skill("test", 2, 5, 0.1, 1);
+            Creature e1 = new Creature("aa", 60, 25, 6, 7, 6, 2, 0);
+            Creature e2 = new Creature("bb", 70, 20, 5, 6, 7, 3, 0);
+            Skill s1 = new Skill("test", 3, 10, 0.1, 1);
+            Skill s2 = new Skill("test2", 2, 6, 0.16, 1);
             e1.Abilities.Add(s1);
-            e1.Attack(ref e2, e1.Abilities[0]);
-            UI.print_stat(e1);
-            UI.print_stat(e2);
+            e1.Abilities.Add(s2);
+            e2.Abilities.Add(s1);
+            e2.Abilities.Add(s2);
+
+            Battle.Battle1v1(e1, e2);
+
             bool running = true;
             ConsoleKey press;
             while (running)
