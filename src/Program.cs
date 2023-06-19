@@ -1,5 +1,6 @@
 ﻿using Combat;
 using VariousEntity;
+using Utils;
 
 namespace C__RPG
 {
@@ -12,7 +13,8 @@ namespace C__RPG
             Skill s1 = new Skill("test", 2, 5, 0.1, 1);
             e1.Abilities.Add(s1);
             e1.Attack(ref e2, e1.Abilities[0]);
-            Console.WriteLine($"{e1.Stat.HP} {e2.Stat.HP}");
+            UI.print_stat(e1);
+            UI.print_stat(e2);
             bool running = true;
             ConsoleKey press;
             while (running)
