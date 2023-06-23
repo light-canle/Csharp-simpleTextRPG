@@ -75,8 +75,8 @@ namespace Combat
         // ====================메소드====================
         public object Clone()
         {
-            return new Resistance(fire : BaseFire, electric : BaseElectric,
-                ice : BaseIce, poison : BasePoison, acid : BaseAcid);
+            return new Resistance(fire: BaseFire, electric: BaseElectric,
+                ice: BaseIce, poison: BasePoison, acid: BaseAcid);
         }
     }
 
@@ -108,7 +108,7 @@ namespace Combat
         // ====================메소드====================
         public object Clone()
         {
-            return new Effect(type : Type, strength : Strength, duration : Duration);
+            return new Effect(type: Type, strength: Strength, duration: Duration);
         }
     }
 

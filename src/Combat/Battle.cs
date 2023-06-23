@@ -17,7 +17,7 @@ namespace Combat
             int turn = 0;
             Random r = new Random();
             AttackInfo info;
-            while(true)
+            while (true)
             {
                 turn++;
                 // 효과 적용
@@ -39,13 +39,15 @@ namespace Combat
                 if (c1.Stat.Agility > c2.Stat.Agility)
                 {
                     info = c1.Attack(ref c2, c1.Abilities[r.Next(c1.Abilities.Count)]);
-                    if (info.IsCritical) {
+                    if (info.IsCritical)
+                    {
                         TUI.TextColor(255, 255, 0);
                         Console.WriteLine("크리티컬 히트!!!");
                         TUI.TextColor(255, 255, 255);
                     }
                     Console.WriteLine($"{c1.Name}(이)가 {c2.Name}에게 {info.Damage}의 대미지를 주었다!");
-                    if (c2.Stat.HP <= 0) {
+                    if (c2.Stat.HP <= 0)
+                    {
                         Console.WriteLine($"{c2.Name}(은)는 쓰러졌다!");
                         return 1;
                     }
@@ -110,7 +112,8 @@ namespace Combat
                         TUI.TextColor(255, 255, 255);
                     }
                     Console.WriteLine($"{c2.Name}(이)가 {c1.Name}에게 {info.Damage}의 대미지를 주었다!");
-                    if (c1.Stat.HP <= 0 && c2.Stat.HP <= 0) {
+                    if (c1.Stat.HP <= 0 && c2.Stat.HP <= 0)
+                    {
                         Console.WriteLine($"{c1.Name}(과)와 {c2.Name}(은)는 동시에 쓰러졌다!");
                         return 0;
                     }
