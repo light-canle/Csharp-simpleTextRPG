@@ -10,32 +10,42 @@ namespace VariousItem
 {
     public class Scroll : Consumable
     {
-        public ScrollType Type { get; protected set; }
-        public Skill? Skill { get; protected set; }
-        public Scroll(string name, int cost, ScrollType type, Skill? skill = null) : base(name, cost)
-        {
-            Type = type;
-            Skill = skill;
-        }
-        public override void Consume(Creature e)
-        {
-            switch (Type)
-            {
-                case ScrollType.Magic:
-                    if (Skill == null)
-                        throw new NullReferenceException("Scroll.Consume() : 스크롤의 타입이 Magic이지만, 대응되는 Skill이 없습니다.");
-                    // 대응하는 Skill을 사용한다.
-
-                    break;
-                case ScrollType.Enchantment:
-                    // TODO : 선택한 아이템 강화함
-                    break;
-            }
-        }
+        public Scroll(string name, int cost) : base(name, cost) {}
 
         public override Scroll Clone()
         {
-            return new Scroll(Name, Cost, Type, Skill);
+            return new Scroll(Name, Cost);
+        }
+    }
+
+    public class SkillScroll : Scroll
+    {
+        public DamageSkill Skill { get; protected set; }
+        public SkillScroll(string name, int cost, DamageSkill skill) : base(name, cost)
+        {
+            Skill = skill;
+        }
+        public void Consume(ref Creature e)
+        {
+            if (e == null) { return; }
+
+            AttackInfo info = Skill.Damage();
+            e.ApplyDamage(info);
+        }
+    }
+
+    public abstract class InventoryScroll : Scroll
+    {
+        public InventoryScroll(string name, int cost) : base(name, cost) { }
+        public abstract void Consume(ref Equipable i);
+    }
+
+    public class ScrollOfUpgrade : InventoryScroll
+    {
+        public ScrollOfUpgrade(string name, int cost) : base(name, cost) { }
+        public override void Consume(ref Equipable i)
+        {
+            i.Reinforcement++;
         }
     }
 }

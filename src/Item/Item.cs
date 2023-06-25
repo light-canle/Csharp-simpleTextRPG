@@ -172,6 +172,7 @@ namespace VariousItem
         public AttackInfo Attack()
         {
             Random rand = new Random();
+            // 강화수치 반영
             int minDamage = RawMinDamage + Reinforcement;
             int maxDamage = RawMaxDamage + 2 * Reinforcement;
 
@@ -181,11 +182,11 @@ namespace VariousItem
                 // 치명타인 경우
                 case double d when d <= CriticalChance:
                     damage = rand.Next((int)Math.Floor((double)maxDamage * 1.6), (int)Math.Floor((double)maxDamage * 2));
-                    return new AttackInfo(true, damage, DamageType);
+                    return new AttackInfo(true, true, damage, DamageType);
                 // 일반 공격인 경우
                 default:
                     damage = rand.Next(minDamage, maxDamage);
-                    return new AttackInfo(false, damage, DamageType);
+                    return new AttackInfo(true, false, damage, DamageType);
             }
         }
 

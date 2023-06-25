@@ -82,14 +82,18 @@ namespace Combat
 
     public sealed class AttackInfo
     {
-        public bool IsCritical { get; }
-        public int Damage { get; }
-        public DamageType DamageType { get; }
-        public AttackInfo(bool isCritical, int damage, DamageType dType)
+        public bool IsHitted { get; set; }
+        public bool IsCritical { get; set; }
+        public int Damage { get; set; }
+        public DamageType DamageType { get; set; }
+        public Effect? Effect { get; set; }
+        public AttackInfo(bool ishitted, bool isCritical, int damage, DamageType dType, Effect? effect = null)
         {
+            IsHitted = ishitted;
             IsCritical = isCritical;
             Damage = damage;
             DamageType = dType;
+            Effect = effect;
         }
     }
 
@@ -109,72 +113,6 @@ namespace Combat
         public object Clone()
         {
             return new Effect(type: Type, strength: Strength, duration: Duration);
-        }
-    }
-
-    public sealed class Skill
-    {
-        public string Name { get; private set; }
-        public AttackType Attack { get; private set; }
-        public int? RawMinDamage { get; set; }
-        public int? RawMaxDamage { get; set; }
-        public double? CriticalChance { get; set; }
-        public double? Accuracy { get; set; }
-        public DamageType? DamageType { get; set; }
-        public double? EffectChance { get; set; }
-        public Effect? GiveEffect { get; set; }
-        // ====================생성자====================
-        // 일반 공격 생성자 - 효과를 주지 않는 일반적인 대미지 공격
-        public Skill(string name, int min, int max, double crit, double acc,
-        AttackType attack = AttackType.Normal, DamageType type = Combat.DamageType.Normal)
-        {
-            Name = name;
-            Attack = attack;
-            RawMinDamage = min;
-            RawMaxDamage = max;
-            CriticalChance = crit;
-            Accuracy = acc;
-            DamageType = type;
-        }
-        // 버프 / 디버프 스킬 생성자
-        public Skill(string name, double acc, double effchance, Effect give, AttackType attack = AttackType.Effect)
-        {
-            Name = name;
-            Attack = attack;
-            Accuracy = acc;
-            EffectChance = effchance;
-            GiveEffect = give;
-        }
-        public Skill(string name, AttackType attack, int min, int max, double crit, double acc, DamageType type)
-        {
-            Name = name;
-            Attack = attack;
-            RawMinDamage = min;
-            RawMaxDamage = max;
-            CriticalChance = crit;
-            Accuracy = acc;
-            DamageType = type;
-        }
-        // ====================메소드====================
-
-        /// <summary>
-        /// 이 스킬의 대미지를 리턴한다.
-        /// AttackType이 Normal, Magic, Weapon, Special(대미지가 있음)일 때만 사용한다.
-        /// </summary>
-        public AttackInfo Damage()
-        {
-            Random r = new Random();
-            int damage;
-            switch (r.NextDouble())
-            {
-                case double d when d <= CriticalChance:
-                    damage = r.Next((int)(RawMaxDamage.GetValueOrDefault() * 1.6), RawMaxDamage.GetValueOrDefault() * 2 + 1);
-                    return new AttackInfo(true, damage, DamageType.GetValueOrDefault());
-
-                default:
-                    damage = r.Next(RawMinDamage.GetValueOrDefault(), (RawMaxDamage + 1).GetValueOrDefault());
-                    return new AttackInfo(false, damage, DamageType.GetValueOrDefault());
-            }
         }
     }
 }

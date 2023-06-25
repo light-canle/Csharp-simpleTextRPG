@@ -130,22 +130,29 @@ namespace VariousEntity
         /// </summary>
         public virtual AttackInfo Attack(ref Creature c, Skill skill)
         {
-            
-            switch (skill.Attack)
+
+            AttackInfo info = skill switch
             {
-                case AttackType.Normal:
-                    AttackInfo info = skill.Damage();
-                    c.ApplyDamage(info);
-                    return info;
-            }
-            return new AttackInfo(false, 0, DamageType.Normal);
+                DamageSkill s => s.Damage(),
+                _ => new AttackInfo(false, false, 0, DamageType.Normal)    
+            };
+            c.ApplyDamage(info);
+            return info;
         }
 
         /// <summary>
-        /// Attack() 함수 내부에서 쓰는 메소드
+        /// 방어력/저항을 모두 무시하고, damage만큼 체력을 깎는다.
+        /// </summary>
+        /// <param name="damage">입힐 대미지</param>
+        public virtual void ApplyDamage(int damage)
+        {
+            Stat.HP = Stat.HP - damage;
+        }
+
+        /// <summary>
         /// 상대가 반환한 공격의 대미지를 방어력에 따라 줄인 뒤 대미지를 적용한다.
         /// </summary>
-        protected virtual void ApplyDamage(AttackInfo attackInfo)
+        public virtual void ApplyDamage(AttackInfo attackInfo)
         {
             Random rand = new Random();
             int final_damage = attackInfo.Damage;
