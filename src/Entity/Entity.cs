@@ -1,6 +1,8 @@
 using Combat;
 using VariousItem;
+using System.Linq;
 
+// TODO : ApplyDamage 안에서 효과 적용 추가
 namespace VariousEntity
 {
     public class Stat : ICloneable
@@ -150,7 +152,7 @@ namespace VariousEntity
         }
 
         /// <summary>
-        /// 상대가 반환한 공격의 대미지를 방어력에 따라 줄인 뒤 대미지를 적용한다.
+        /// 상대가 반환한 공격의 대미지를 방어력에 따라 줄인 뒤 대미지와 효과를 적용한다.
         /// </summary>
         public virtual void ApplyDamage(AttackInfo attackInfo)
         {
@@ -262,13 +264,24 @@ namespace VariousEntity
             Effects.Add(e);
         }
 
-        /// <summary>
+        /// TODO:
         /// 엔티티에게 아이템을 사용함
-        /// </summary>
+
+        /// TODO:
+        /// 엔티티가 인자로 받은 행동을 함
+
 
         /// <summary>
-        /// 엔티티가 인자로 받은 행동을 함
+        /// 엔티티 복제 함수(해당 엔티티가 걸린 효과는 복제되지 않음)
         /// </summary>
+        public override Creature Clone()
+        {
+            Creature c = new Creature(Name ?? "");
+            c.Stat = (Stat)Stat.Clone();
+            c.Abilities = Abilities.ConvertAll(s => (Skill)s.Clone());
+            c.Resistance = (Resistance)Resistance.Clone();
+            return c;
+        }
     }
 
     public class ArmedEntity : Creature

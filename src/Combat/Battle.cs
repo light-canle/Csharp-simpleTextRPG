@@ -132,5 +132,102 @@ namespace Combat
                 Console.WriteLine("=================================");
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="c1"></param>
+        /// <param name="c2"></param>
+        /// <returns></returns>
+        public static (int, int, int) WinRate(Creature c1, Creature c2, int count)
+        {
+            if (count <= 0) throw new ArgumentException("count는 양수여야만 합니다.");
+            Creature fighter1 = c1.Clone();
+            Creature fighter2 = c2.Clone();
+            int f1Win = 0;
+            int f2Win = 0;
+            int draw = 0;
+            int WinnerOfCurrentGame = -1;
+            Random r = new Random();
+            AttackInfo info;
+            for (int i = 0; i < count; i++)
+            {
+                fighter1.Stat.HP = fighter1.Stat.MaxHP;
+                fighter1.Stat.MP = fighter1.Stat.MaxMP;
+                fighter1.Effects.Clear();
+
+                fighter2.Stat.HP = fighter2.Stat.MaxHP;
+                fighter2.Stat.MP = fighter2.Stat.MaxMP;
+                fighter2.Effects.Clear();
+                while (true)
+                {
+                    // 효과 적용
+                    fighter1.ApplyEffect();
+                    fighter2.ApplyEffect();
+
+                    // 공격
+                    // 민첩이 높은 크리쳐가 우선 공격
+                    // 민첩이 같으면 동시 공격
+                    if (fighter1.Stat.Agility > fighter2.Stat.Agility)
+                    {
+                        info = fighter1.Attack(ref fighter2, fighter1.Abilities[r.Next(fighter1.Abilities.Count)]);
+                        if (fighter2.Stat.HP <= 0)
+                        {
+                            WinnerOfCurrentGame = 1;
+                            break;
+                        }
+                        info = fighter2.Attack(ref fighter1, fighter2.Abilities[r.Next(fighter2.Abilities.Count)]);
+                        if (fighter1.Stat.HP <= 0)
+                        {
+                            WinnerOfCurrentGame = 2;
+                            break;
+                        }
+                    }
+                    else if (fighter1.Stat.Agility < fighter2.Stat.Agility)
+                    {
+                        info = fighter2.Attack(ref fighter1, fighter2.Abilities[r.Next(fighter2.Abilities.Count)]);
+                        if (fighter1.Stat.HP <= 0)
+                        {
+                            WinnerOfCurrentGame = 2;
+                            break;
+                        }
+                        info = fighter1.Attack(ref fighter2, fighter1.Abilities[r.Next(fighter1.Abilities.Count)]);
+                        if (fighter2.Stat.HP <= 0)
+                        {
+                            WinnerOfCurrentGame = 1;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        info = fighter1.Attack(ref fighter2, fighter1.Abilities[r.Next(fighter1.Abilities.Count)]);
+                        info = fighter2.Attack(ref fighter1, fighter2.Abilities[r.Next(fighter2.Abilities.Count)]);
+                        if (fighter1.Stat.HP <= 0 && fighter2.Stat.HP <= 0)
+                        {
+                            WinnerOfCurrentGame = 0;
+                            break;
+                        }
+                        if (fighter1.Stat.HP <= 0)
+                        {
+                            WinnerOfCurrentGame = 2;
+                            break;
+                        }
+                        if (fighter2.Stat.HP <= 0)
+                        {
+                            WinnerOfCurrentGame = 1;
+                            break;
+                        }
+                    }
+                }
+                switch(WinnerOfCurrentGame)
+                {
+                    case 0: draw++; break;
+                    case 1: f1Win++; break;
+                    case 2: f2Win++; break;
+                }
+            }
+                
+            return (f1Win, f2Win, draw);
+        } 
     }
 }

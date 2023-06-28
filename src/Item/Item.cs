@@ -118,12 +118,12 @@ namespace VariousItem
         public override Equipable Clone()
         {
             Equipable e = new Equipable("", 0, Position.Weapon);
-            e.Name = this.Name;
-            e.Cost = this.Cost;
-            e.Position = this.Position;
-            e.Reinforcement = this.Reinforcement;
-            e.Quality = this.Quality;
-            e.EnchantList = this.EnchantList.ConvertAll(en => new Enchantment(en.Type, en.Level));
+            e.Name = Name;
+            e.Cost = Cost;
+            e.Position = Position;
+            e.Reinforcement = Reinforcement;
+            e.Quality = Quality;
+            e.EnchantList = EnchantList.ConvertAll(en => new Enchantment(en.Type, en.Level));
             return e;
         }
         /// <summary>
@@ -255,6 +255,7 @@ namespace VariousItem
         }
     }
 
+    // TODO : Accessory 종류 분화
     public class Accessory : Equipable
     {
         public RingType Type { get; private set; }
@@ -291,6 +292,7 @@ namespace VariousItem
     {
         public Consumable(string name, int cost) : base(name, cost)
         {
+            
         }
         public virtual void Consume(Creature e) { 
         

@@ -2,34 +2,46 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VariousEntity;
 using VariousItem;
 
 namespace Combat
 {
-    public class Skill
+    public class Skill : ICloneable
     {
         public string Name { get; protected set; }
-        public DamageType? DamageType { get; set; }
 
         // ====================생성자====================
-        public Skill(string name, DamageType type)
+        public Skill(string name)
         {
             Name = name;
-            DamageType = type;
+        }
+        
+        public virtual object Clone()
+        {
+            return new Skill(Name);
         }
     }
 
     public class DamageSkill : Skill
     {
-        public int? RawMinDamage { get; protected set; }
-        public int? RawMaxDamage { get; protected set; }
-        public double? CriticalChance { get; protected set; }
-        public double? Accuracy { get; protected set; }
+        public int RawMinDamage { get; protected set; }
+        public int RawMaxDamage { get; protected set; }
+        public double CriticalChance { get; protected set; }
+        public double Accuracy { get; protected set; }
+        public DamageType DamageType { get; protected set; }
+
+        /// <summary>
+        /// 대미지를 주는 스킬의 생성자
+        /// </summary>
+        /// <param name="name">스킬 이름</param>
+        /// <param name="min">최소 대미지</param>
+        /// <param name="max">최대 대미지</param>
+        /// <param name="crit">치명타 확률</param>
+        /// <param name="acc">명중률</param>
+        /// <param name="type">대미지 타입</param>
         public DamageSkill(string name, int min, int max, double crit, double acc,
-        DamageType type = Combat.DamageType.Normal) : base(name, type)
+        DamageType type = Combat.DamageType.Normal) : base(name)
         {
             RawMinDamage = min;
             RawMaxDamage = max;
@@ -51,39 +63,46 @@ namespace Combat
             switch (r.NextDouble())
             {
                 case double d when d <= Accuracy:
-                    info = new AttackInfo(true, false, 0, DamageType.GetValueOrDefault());
+                    info = new AttackInfo(true, false, 0, DamageType);
                     break;
                 default:
-                    info = new AttackInfo(false, false, 0, DamageType.GetValueOrDefault());
+                    info = new AttackInfo(false, false, 0, DamageType);
                     return info;
             }
             // 크리티컬 히트 여부 검사
             switch (r.NextDouble())
             {
                 case double d when d <= CriticalChance:
-                    damage = r.Next((int)(RawMaxDamage.GetValueOrDefault() * 1.6), RawMaxDamage.GetValueOrDefault() * 2 + 1);
+                    damage = r.Next((int)(RawMaxDamage * 1.6), RawMaxDamage * 2 + 1);
                     info.IsCritical = true;
                     info.Damage = damage;
                     break;
 
                 default:
-                    damage = r.Next(RawMinDamage.GetValueOrDefault(), (RawMaxDamage + 1).GetValueOrDefault());
+                    damage = r.Next(RawMinDamage, (RawMaxDamage + 1));
                     info.IsCritical = false;
                     info.Damage = damage;
                     break;
             }
             return info;
         }
+
+        public override object Clone()
+        {
+            return new DamageSkill(Name, RawMinDamage, RawMaxDamage,
+                CriticalChance, Accuracy, DamageType);
+        }
     }
 
     public class WeaponSkill : DamageSkill
     {
         public Weapon Weapon { get; private set; }
-        public WeaponSkill(string name, Weapon weapon) :
-            base(name, weapon.RawMinDamage, weapon.RawMaxDamage, weapon.CriticalChance,
-                weapon.Accuracy, weapon.DamageType)
+        public double Multiplier { get; private set; }
+        public WeaponSkill(string name, Weapon weapon, double multiplier) :
+            base(name, (int)(weapon.RawMinDamage * multiplier), (int)(weapon.RawMaxDamage * multiplier), 
+                weapon.CriticalChance, weapon.Accuracy, weapon.DamageType)
         {
-            Weapon = weapon;
+            Weapon = weapon.Clone();
         }
         /// <summary>
         /// 이 스킬의 대미지를 리턴한다.
@@ -97,28 +116,33 @@ namespace Combat
             switch (r.NextDouble())
             {
                 case double d when d <= Accuracy:
-                    info = new AttackInfo(true, false, 0, DamageType.GetValueOrDefault());
+                    info = new AttackInfo(true, false, 0, DamageType);
                     break;
                 default:
-                    info = new AttackInfo(false, false, 0, DamageType.GetValueOrDefault());
+                    info = new AttackInfo(false, false, 0, DamageType);
                     return info;
             }
             // 크리티컬 히트 여부 검사
             switch (r.NextDouble())
             {
                 case double d when d <= CriticalChance:
-                    damage = r.Next((int)(RawMaxDamage.GetValueOrDefault() * 1.6), RawMaxDamage.GetValueOrDefault() * 2 + 1);
+                    damage = r.Next((int)(RawMaxDamage * 1.6), RawMaxDamage * 2 + 1);
                     info.IsCritical = true;
                     info.Damage = damage;
                     break;
 
                 default:
-                    damage = r.Next(RawMinDamage.GetValueOrDefault(), (RawMaxDamage + 1).GetValueOrDefault());
+                    damage = r.Next(RawMinDamage, (RawMaxDamage + 1));
                     info.IsCritical = false;
                     info.Damage = damage;
                     break;
             }
             return info;
+        }
+
+        public override WeaponSkill Clone()
+        {
+            return new WeaponSkill(Name, Weapon, Multiplier);
         }
     }
 
@@ -126,13 +150,26 @@ namespace Combat
 
     public class MagicSkill : DamageSkill
     {
-        public int level { get; private set; }
+        public int Level { get; private set; }
         public int ManaCost { get; private set; }
         public Creature Conjurer { get; private set; }
-        public MagicSkill(string name, int min, int max, double crit, double acc, DamageType type, Creature conjurer)
+        /// <summary>
+        /// 마법 스킬의 생성자
+        /// </summary>
+        /// <param name="name">이름</param>
+        /// <param name="min">최소 대미지</param>
+        /// <param name="max">최대 대미지</param>
+        /// <param name="crit">크리티컬 확률</param>
+        /// <param name="acc">명중률</param>
+        /// <param name="type">대미지 타입</param>
+        /// <param name="conjurer">스킬을 사용하는 크리쳐</param>
+        public MagicSkill(string name, int min, int max, double crit, double acc, 
+            DamageType type, int level, int manacost, Creature conjurer)
             : base(name, min, max, crit, acc, type)
         {
             Conjurer = conjurer;
+            Level = level;
+            ManaCost = manacost;
         }
         /// <summary>
         /// 이 스킬의 대미지를 리턴한다.
@@ -146,28 +183,34 @@ namespace Combat
             switch (r.NextDouble())
             {
                 case double d when d <= Accuracy:
-                    info = new AttackInfo(true, false, 0, DamageType.GetValueOrDefault());
+                    info = new AttackInfo(true, false, 0, DamageType);
                     break;
                 default:
-                    info = new AttackInfo(false, false, 0, DamageType.GetValueOrDefault());
+                    info = new AttackInfo(false, false, 0, DamageType);
                     return info;
             }
             // 크리티컬 히트 여부 검사
             switch (r.NextDouble())
             {
                 case double d when d <= CriticalChance:
-                    damage = r.Next((int)(RawMaxDamage.GetValueOrDefault() * 1.6), RawMaxDamage.GetValueOrDefault() * 2 + 1);
+                    damage = r.Next((int)(RawMaxDamage * 1.6), RawMaxDamage * 2 + 1);
                     info.IsCritical = true;
                     info.Damage = damage;
                     break;
 
                 default:
-                    damage = r.Next(RawMinDamage.GetValueOrDefault(), (RawMaxDamage + 1).GetValueOrDefault());
+                    damage = r.Next(RawMinDamage, (RawMaxDamage + 1));
                     info.IsCritical = false;
                     info.Damage = damage;
                     break;
             }
             return info;
+        }
+
+        public override MagicSkill Clone()
+        {
+            return new MagicSkill(Name, RawMinDamage, RawMaxDamage, 
+                CriticalChance, Accuracy, DamageType, Level, ManaCost, Conjurer);
         }
     }
 
@@ -175,6 +218,17 @@ namespace Combat
     {
         public double EffectChance { get; set; }
         public Effect GiveEffect { get; set; }
+        /// <summary>
+        /// 버프/디버프를 동반하는 스킬의 생성자
+        /// </summary>
+        /// <param name="name">이름</param>
+        /// <param name="min">최소 대미지</param>
+        /// <param name="max">최대 대미지</param>
+        /// <param name="crit">크리티컬 확률</param>
+        /// <param name="acc">명중률</param>
+        /// <param name="effchance">버프/디버프 확률</param>
+        /// <param name="type">대미지 타입</param>
+        /// <param name="give">주려는 효과(반드시 new로 생성해서 넣을 것)</param>
         public EffectSkill(string name, int min, int max, double crit, double acc, double effchance, DamageType type, Effect give):
             base(name, min, max, crit, acc, type)
         {
@@ -193,23 +247,23 @@ namespace Combat
             switch (r.NextDouble())
             {
                 case double d when d <= Accuracy:
-                    info = new AttackInfo(true, false, 0, DamageType.GetValueOrDefault());
+                    info = new AttackInfo(true, false, 0, DamageType);
                     break;
                 default:
-                    info = new AttackInfo(false, false, 0, DamageType.GetValueOrDefault());
+                    info = new AttackInfo(false, false, 0, DamageType);
                     return info;
             }
             // 크리티컬 여부 검사
             switch (r.NextDouble())
             {
                 case double d when d <= CriticalChance:
-                    damage = r.Next((int)(RawMaxDamage.GetValueOrDefault() * 1.6), RawMaxDamage.GetValueOrDefault() * 2 + 1);
+                    damage = r.Next((int)(RawMaxDamage * 1.6), RawMaxDamage * 2 + 1);
                     info.IsCritical = true;
                     info.Damage = damage;
                     break;
 
                 default:
-                    damage = r.Next(RawMinDamage.GetValueOrDefault(), (RawMaxDamage + 1).GetValueOrDefault());
+                    damage = r.Next(RawMinDamage, (RawMaxDamage + 1));
                     info.IsCritical = false;
                     info.Damage = damage;
                     break;
@@ -231,11 +285,18 @@ namespace Combat
             }
             return info;
         }
+
+        public override EffectSkill Clone()
+        {
+            return new EffectSkill(Name, RawMinDamage, RawMaxDamage, 
+                CriticalChance, Accuracy, 
+                EffectChance, DamageType, GiveEffect);
+        }
     }
 
     public class HealSkill : Skill
     {
-        public HealSkill(string name, DamageType type) : base(name, type)
+        public HealSkill(string name) : base(name)
         {
         }
     }
