@@ -35,6 +35,18 @@ namespace Utils
         }
 
         /// <summary>
+        /// 해당 색깔로 content를 출력한다.
+        /// </summary>
+        /// <param name="content">출력할 내용</param>
+        /// <param name="returnBase">기본 색(흰색)으로 되돌릴 것인지 여부</param>
+        public static void ColorPrint(int r, int g, int b, string? content, bool returnBase = true)
+        {
+            TextColor(r, g, b);
+            Console.WriteLine(content);
+            if (returnBase) TextColor(255, 255, 255);
+        }
+
+        /// <summary>
         /// 해당 크리쳐의 hp와 mp를 출력한다.
         /// </summary>
         /// <param name="c">크리쳐</param>
@@ -50,9 +62,9 @@ namespace Utils
             // 정확한 수치 표시
             s += " " + c.Stat.HP.ToString() + "/" + c.Stat.MaxHP.ToString();
             // 남은 hp 양에 따라 색을 달리함
-            if (heart_count > 5) TUI.TextColor(0, 255, 0);
-            else if (heart_count > 2) TUI.TextColor(255, 255, 0);
-            else TUI.TextColor(255, 0, 0);
+            if (heart_count > 5) TextColor(0, 255, 0);
+            else if (heart_count > 2) TextColor(255, 255, 0);
+            else TextColor(255, 0, 0);
 
             Console.WriteLine(s);
 
@@ -65,10 +77,20 @@ namespace Utils
             // 수치 표시
             s += " " + c.Stat.MP.ToString() + "/" + c.Stat.MaxMP.ToString();
 
-            TUI.TextColor(0, 255, 255);
-            Console.WriteLine(s);
-
-            TUI.TextColor(255, 255, 255);
+            ColorPrint(0, 255, 255, s);
+            Console.WriteLine();
+        }
+        
+        /// <summary>
+        /// 플레이어의 인벤토리를 출력
+        /// </summary>
+        /// <param name="p"></param>
+        public static void PrintInventory(Player p)
+        {
+            foreach (Item item in p.Inventory.Keys)
+            {
+                Console.WriteLine($"{item.Name}\t\t{p.Inventory[item]}");
+            }
         }
     }
 }

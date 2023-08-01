@@ -98,11 +98,20 @@ namespace Combat
     {
         public Weapon Weapon { get; private set; }
         public double Multiplier { get; private set; }
-        public WeaponSkill(string name, Weapon weapon, double multiplier) :
+        public Stat Stat { get; set; }
+        /// <summary>
+        /// 무기 기반 스킬의 생성자
+        /// </summary>
+        /// <param name="name">이름</param>
+        /// <param name="weapon">기반 무기</param>
+        /// <param name="stat">스킬 사용자의 스탯</param>
+        /// <param name="multiplier">공격력 계수</param>
+        public WeaponSkill(string name, Weapon weapon, Stat stat, double multiplier) :
             base(name, (int)(weapon.RawMinDamage * multiplier), (int)(weapon.RawMaxDamage * multiplier), 
                 weapon.CriticalChance, weapon.Accuracy, weapon.DamageType)
         {
             Weapon = weapon.Clone();
+            Stat = (Stat)stat.Clone();
         }
         /// <summary>
         /// 이 스킬의 대미지를 리턴한다.
@@ -142,7 +151,7 @@ namespace Combat
 
         public override WeaponSkill Clone()
         {
-            return new WeaponSkill(Name, Weapon, Multiplier);
+            return new WeaponSkill(Name, Weapon, Stat, Multiplier);
         }
     }
 
@@ -152,7 +161,7 @@ namespace Combat
     {
         public int Level { get; private set; }
         public int ManaCost { get; private set; }
-        public Creature Conjurer { get; private set; }
+        public Stat Conjurer { get; set; }
         /// <summary>
         /// 마법 스킬의 생성자
         /// </summary>
@@ -164,7 +173,7 @@ namespace Combat
         /// <param name="type">대미지 타입</param>
         /// <param name="conjurer">스킬을 사용하는 크리쳐</param>
         public MagicSkill(string name, int min, int max, double crit, double acc, 
-            DamageType type, int level, int manacost, Creature conjurer)
+            DamageType type, int level, int manacost, Stat conjurer)
             : base(name, min, max, crit, acc, type)
         {
             Conjurer = conjurer;

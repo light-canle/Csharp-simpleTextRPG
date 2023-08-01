@@ -29,9 +29,7 @@ namespace Combat
 
                 // 현재 남은 hp, mp 출력
                 TUI.print_stat(c1);
-                Console.WriteLine();
                 TUI.print_stat(c2);
-                Console.WriteLine();
 
                 // 공격
                 // 민첩이 높은 크리쳐가 우선 공격
@@ -41,9 +39,7 @@ namespace Combat
                     info = c1.Attack(ref c2, c1.Abilities[r.Next(c1.Abilities.Count)]);
                     if (info.IsCritical)
                     {
-                        TUI.TextColor(255, 255, 0);
-                        Console.WriteLine("크리티컬 히트!!!");
-                        TUI.TextColor(255, 255, 255);
+                        TUI.ColorPrint(255, 255, 0, "크리티컬 히트!!!");
                     }
                     Console.WriteLine($"{c1.Name}(이)가 {c2.Name}에게 {info.Damage}의 대미지를 주었다!");
                     if (c2.Stat.HP <= 0)
@@ -54,9 +50,7 @@ namespace Combat
                     info = c2.Attack(ref c1, c2.Abilities[r.Next(c2.Abilities.Count)]);
                     if (info.IsCritical)
                     {
-                        TUI.TextColor(255, 255, 0);
-                        Console.WriteLine("크리티컬 히트!!!");
-                        TUI.TextColor(255, 255, 255);
+                        TUI.ColorPrint(255, 255, 0, "크리티컬 히트!!!");
                     }
                     Console.WriteLine($"{c2.Name}(이)가 {c1.Name}에게 {info.Damage}의 대미지를 주었다!");
                     if (c1.Stat.HP <= 0)
@@ -70,9 +64,7 @@ namespace Combat
                     info = c2.Attack(ref c1, c2.Abilities[r.Next(c2.Abilities.Count)]);
                     if (info.IsCritical)
                     {
-                        TUI.TextColor(255, 255, 0);
-                        Console.WriteLine("크리티컬 히트!!!");
-                        TUI.TextColor(255, 255, 255);
+                        TUI.ColorPrint(255, 255, 0, "크리티컬 히트!!!");
                     }
                     Console.WriteLine($"{c2.Name}(이)가 {c1.Name}에게 {info.Damage}의 대미지를 주었다!");
                     if (c1.Stat.HP <= 0)
@@ -83,9 +75,7 @@ namespace Combat
                     info = c1.Attack(ref c2, c1.Abilities[r.Next(c1.Abilities.Count)]);
                     if (info.IsCritical)
                     {
-                        TUI.TextColor(255, 255, 0);
-                        Console.WriteLine("크리티컬 히트!!!");
-                        TUI.TextColor(255, 255, 255);
+                        TUI.ColorPrint(255, 255, 0, "크리티컬 히트!!!");
                     }
                     Console.WriteLine($"{c1.Name}(이)가 {c2.Name}에게 {info.Damage}의 대미지를 주었다!");
                     if (c2.Stat.HP <= 0)
@@ -99,17 +89,13 @@ namespace Combat
                     info = c1.Attack(ref c2, c1.Abilities[r.Next(c1.Abilities.Count)]);
                     if (info.IsCritical)
                     {
-                        TUI.TextColor(255, 255, 0);
-                        Console.WriteLine("크리티컬 히트!!!");
-                        TUI.TextColor(255, 255, 255);
+                        TUI.ColorPrint(255, 255, 0, "크리티컬 히트!!!");
                     }
                     Console.WriteLine($"{c1.Name}(이)가 {c2.Name}에게 {info.Damage}의 대미지를 주었다!");
                     info = c2.Attack(ref c1, c2.Abilities[r.Next(c2.Abilities.Count)]);
                     if (info.IsCritical)
                     {
-                        TUI.TextColor(255, 255, 0);
-                        Console.WriteLine("크리티컬 히트!!!");
-                        TUI.TextColor(255, 255, 255);
+                        TUI.ColorPrint(255, 255, 0, "크리티컬 히트!!!");
                     }
                     Console.WriteLine($"{c2.Name}(이)가 {c1.Name}에게 {info.Damage}의 대미지를 주었다!");
                     if (c1.Stat.HP <= 0 && c2.Stat.HP <= 0)
@@ -134,11 +120,11 @@ namespace Combat
         }
 
         /// <summary>
-        /// 
+        /// 두 엔티티를 count번 만큼 싸우게 하고, 각각의 승리 횟수를 출력함
         /// </summary>
         /// <param name="c1"></param>
         /// <param name="c2"></param>
-        /// <returns></returns>
+        /// <returns>c1이 이긴 횟수, c2가 이긴 횟수, 무승부 횟수를 튜플 형태로 반환</returns>
         public static (int, int, int) WinRate(Creature c1, Creature c2, int count)
         {
             if (count <= 0) throw new ArgumentException("count는 양수여야만 합니다.");

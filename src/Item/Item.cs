@@ -138,7 +138,10 @@ namespace VariousItem
             EnchantList.Add(enchant);
         }
 
-        public virtual void UpdateEnchant() { }
+        public virtual void UpdateEnchant() 
+        { 
+            
+        }
     }
 
     public class Weapon : Equipable
@@ -148,7 +151,8 @@ namespace VariousItem
         public DamageType DamageType { get; set; }
         public double CriticalChance { get; set; }
         public double Accuracy { get; set; }
-
+        public int Tier { get; set; }
+        public Stat RequireStat { get; set; }
 
         // ====================생성자====================
         public Weapon() : base("Air", 0, Position.Weapon)
@@ -157,6 +161,9 @@ namespace VariousItem
             RawMaxDamage = 0;
             CriticalChance = 0;
             Accuracy = 0;
+            Tier = 0;
+            RequireStat = new Stat();
+            RequireStat.SetZero();
         }
         public Weapon(string name, int cost, int min, int max, int critical, int accuracy, Quality quality) : base(name, cost, Position.Weapon, 0, quality)
         {
@@ -229,29 +236,43 @@ namespace VariousItem
 
     public class Armor : Equipable
     {
-        public int AC { get; set; }
-        public int MR { get; set; }
+        public Stat Stat { get; set; }
         public Resistance Resistance { get; set; }
 
         // ====================생성자====================
-        public Armor(string name, int cost, int ac, int mr, Position pos, Quality quality) : base(name, cost, pos, 0, quality)
+        public Armor(string name, int cost, int ac, int mr, 
+            Position pos, Quality quality) : base(name, cost, pos, 0, quality)
         {
-            AC = ac;
-            MR = mr;
+            Stat = new Stat();
+            Stat.SetZero();
+            Stat.AC = ac;
+            Stat.MR = mr;
             Resistance = new Resistance();
+        }
+
+        public Armor(string name, int cost, Stat stat, Position pos, Resistance r)
+            : base(name, cost, pos, 0, Quality.Common)
+        {
+            Stat = stat;
+            Resistance = (Resistance)r.Clone();
         }
 
         public Armor(string name, int cost, int ac, int mr, Position pos, int reinforcement, Quality quality, Resistance r) : base(name, cost, pos, reinforcement, quality)
         {
-            AC = ac;
-            MR = mr;
+            Stat = new Stat();
+            Stat.SetZero();
+            Stat.AC = ac;
+            Stat.MR = mr;
             Resistance = (Resistance)r.Clone();
         }
 
         // ====================메소드====================
         public override Armor Clone()
         {
-            return new Armor(Name, Cost, AC, MR, Position, Quality);
+            Armor a = new Armor(Name, Cost, Stat.AC, Stat.MR, Position, Quality);
+            a.Stat = (Stat)Stat.Clone();
+            a.Resistance = (Resistance)Resistance.Clone();
+            return a;
         }
     }
 
@@ -287,6 +308,8 @@ namespace VariousItem
             return new Accessory(Name, Cost, Type, ChangeStats, Resistance);
         }
     }
+
+    //public class 
 
     public class Consumable : Item
     {

@@ -52,6 +52,7 @@ namespace VariousEntity
         public int BaseStrength { get; set; }
         public int BaseAgility { get; set; }
         public int BaseSpell { get; set; }
+        public int BaseTalent { get; set; }
         public int BaseAC { get; set; }
         public int BaseMR { get; set; }
         public int MaxHP { get; set; }
@@ -59,9 +60,10 @@ namespace VariousEntity
         public int Strength { get; set; }
         public int Agility { get; set; }
         public int Spell { get; set; }
+        public int Talent { get; set; }
         public int AC { get; set; }
         public int MR { get; set; }
-        public Stat(int hp = 20, int mp = 6, int strength = 5, int agility = 5, int spell = 5, int ac = 0, int mr = 0)
+        public Stat(int hp = 20, int mp = 6, int strength = 5, int agility = 5, int spell = 5, int talent = 5, int ac = 0, int mr = 0)
         {
             BaseMaxHP = hp;
             MaxHP = BaseMaxHP;
@@ -74,14 +76,41 @@ namespace VariousEntity
             BaseStrength = strength;
             BaseAgility = agility;
             BaseSpell = spell;
+            BaseTalent = talent;
             BaseAC = ac;
             BaseMR = mr;
 
             Strength = BaseStrength;
             Agility = BaseAgility;
             Spell = BaseSpell;
+            Talent = BaseTalent;
             AC = BaseAC;
             MR = BaseMR;
+        }
+
+        public void SetZero()
+        {
+            BaseMaxHP = 1;
+            MaxHP = 1;
+            HP = 1;
+
+            BaseMaxMP = 1;
+            MaxMP = 1;
+            MP = 1;
+
+            BaseStrength = 0;
+            BaseAgility = 0;
+            BaseSpell = 0;
+            BaseTalent = 0;
+            BaseAC = 0;
+            BaseMR = 0;
+
+            Strength = 0;
+            Agility = 0;
+            Spell = 0;
+            Talent = 0;
+            AC = 0;
+            MR = 0;
         }
 
         public object Clone()
@@ -117,10 +146,10 @@ namespace VariousEntity
             Resistance = new Resistance();
         }
 
-        public Creature(string name, int hp, int mp, int strength, int agility, int spell, int ac, int mr) : base(name)
+        public Creature(string name, int hp, int mp, int strength, int agility, int spell, int talent, int ac, int mr) : base(name)
         {
             Stat = new Stat(hp : hp, mp : mp, strength : strength,
-                agility : agility, spell : spell, ac : ac, mr : mr);
+                agility : agility, spell : spell, talent : talent, ac : ac, mr : mr);
             Effects = new List<Effect>();
             Abilities = new List<Skill>();
             Resistance = new Resistance();
@@ -400,8 +429,8 @@ namespace VariousEntity
 
             for (int i = 0; i < EquippedArmors.Length; i++)
             {
-                Stat.AC += EquippedArmors[i]?.AC ?? 0;
-                Stat.MR += EquippedArmors[i]?.MR ?? 0;
+                Stat.AC += EquippedArmors[i]?.Stat.AC ?? 0;
+                Stat.MR += EquippedArmors[i]?.Stat.MR ?? 0;
 
                 Resistance.Fire += EquippedArmors[i]?.Resistance.Fire ?? 0;
                 Resistance.Electric += EquippedArmors[i]?.Resistance.Electric ?? 0;
