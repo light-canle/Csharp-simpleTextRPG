@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Combat;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -84,12 +85,22 @@ namespace Utils
         /// <summary>
         /// 플레이어의 인벤토리를 출력
         /// </summary>
-        /// <param name="p"></param>
         public static void PrintInventory(Player p)
         {
             foreach (Item item in p.Inventory.Keys)
             {
                 Console.WriteLine($"{item.Name}\t\t{p.Inventory[item]}");
+            }
+        }
+
+        /// <summary>
+        /// 플레이어의 기술들을 출력
+        /// </summary>
+        public static void PrintAbilities(Player p)
+        {
+            foreach (Skill s in p.Abilities)
+            {
+                Console.WriteLine($"{s.Name}");
             }
         }
     }

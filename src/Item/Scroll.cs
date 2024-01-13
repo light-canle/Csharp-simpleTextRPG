@@ -8,16 +8,14 @@ using VariousEntity;
 
 namespace VariousItem
 {
-    public class Scroll : Consumable
+    public abstract class Scroll : Consumable
     {
-        public Scroll(string name, int cost) : base(name, cost) {}
-
-        public override Scroll Clone()
+        public Scroll(string name, int cost) : base(name, cost) 
         {
-            return new Scroll(Name, Cost);
+            
         }
     }
-
+    
     public class SkillScroll : Scroll
     {
         public DamageSkill Skill { get; protected set; }
@@ -25,7 +23,7 @@ namespace VariousItem
         {
             Skill = skill;
         }
-        public void Consume(ref Creature e)
+        public void Consume(Creature e)
         {
             if (e == null) { return; }
 
@@ -34,16 +32,11 @@ namespace VariousItem
         }
     }
 
-    public abstract class InventoryScroll : Scroll
-    {
-        public InventoryScroll(string name, int cost) : base(name, cost) { }
-        public abstract void Consume(ref Equipable i);
-    }
-
-    public class ScrollOfUpgrade : InventoryScroll
+    public class ScrollOfUpgrade : Scroll
     {
         public ScrollOfUpgrade(string name, int cost) : base(name, cost) { }
-        public override void Consume(ref Equipable i)
+
+        public void Consume(Equipable i)
         {
             i.Reinforcement++;
         }

@@ -77,6 +77,68 @@ namespace VariousItem
         {
             return new Enchantment(Type, Level);
         }
+
+        public void Apply(Equipable equipable)
+        {
+            switch (Type)
+            {
+                case EnchantmentType.AttackReinforcement:
+                    switch (equipable)
+                    {
+                        case Weapon w:
+                            w.MinDamage = (int)(w.RawMinDamage * (1.0 + Level * 0.1));
+                            w.MaxDamage = (int)(w.RawMaxDamage * (1.0 + Level * 0.1));
+                            break;
+                        default: break;
+                    }
+                    break;
+                case EnchantmentType.Sharpness:
+                    switch (equipable)
+                    {
+                        case Weapon w:
+                            w.CriticalChance += 0.01 * Level;
+                            break;
+                        default: break;
+                    }
+                    break;
+                case EnchantmentType.Heavyness:
+                    switch (equipable)
+                    {
+                        case Weapon w:
+                            w.CriticalPower += 0.1 * Level;
+                            break;
+                        default: break;
+                    }
+                    break;
+                case EnchantmentType.Accuracy:
+                    switch (equipable)
+                    {
+                        case Weapon w:
+                            w.Accuracy += 0.2 * Level;
+                            break;
+                        default: break;
+                    }
+                    break;
+                case EnchantmentType.Hardness:
+                    switch (equipable)
+                    {
+                        case Armor a:
+                            a.Stat.AC += 1 * Level;
+                            break;
+                        default: break;
+                    }
+                    break;
+                case EnchantmentType.AntiMagic:
+                    switch (equipable)
+                    {
+                        case Armor a:
+                            a.Stat.MR += 1 * Level;
+                            break;
+                        default: break;
+                    }
+                    break;
+            }
+        }
     }
 
     public class Item : ICloneable
@@ -128,7 +190,7 @@ namespace VariousItem
         }
         /// <summary>
         /// 인자로 받은 인챈트 추가
-        /// (!중요) 장착 가능한 무기의 종류(무기, 방어구, 장신구)에 따라
+        /// (!중요) 장착 가능한 장비의 종류(무기, 방어구, 장신구)에 따라
         /// 할 수 있는 인챈트들의 종류가 다르므로, 자식 클래스에서는
         /// 반드시 이 메소드를 오버라이드 해서 구현할 것
         /// </summary>
@@ -138,187 +200,26 @@ namespace VariousItem
             EnchantList.Add(enchant);
         }
 
-        public virtual void UpdateEnchant() 
-        { 
-            
-        }
-    }
-
-    public class Weapon : Equipable
-    {
-        public int RawMinDamage { get; set; }
-        public int RawMaxDamage { get; set; }
-        public DamageType DamageType { get; set; }
-        public double CriticalChance { get; set; }
-        public double Accuracy { get; set; }
-        public int Tier { get; set; }
-        public Stat RequireStat { get; set; }
-
-        // ====================생성자====================
-        public Weapon() : base("Air", 0, Position.Weapon)
-        {
-            RawMaxDamage = 0;
-            RawMaxDamage = 0;
-            CriticalChance = 0;
-            Accuracy = 0;
-            Tier = 0;
-            RequireStat = new Stat();
-            RequireStat.SetZero();
-        }
-        public Weapon(string name, int cost, int min, int max, int critical, int accuracy, Quality quality) : base(name, cost, Position.Weapon, 0, quality)
-        {
-            RawMaxDamage = min;
-            RawMaxDamage = max;
-            CriticalChance = critical;
-            Accuracy = accuracy;
-        }
-        // ====================메소드====================
         /// <summary>
-        /// 이 무기의 기본 대미지를 반환한다.
+        /// 인챈트 리스트 안에 있는 인챈트들을 바탕으로 장비의 속성을
+        /// 변경한다.
         /// </summary>
-        public AttackInfo Attack()
+        public virtual void UpdateEnchant()
         {
-            Random rand = new Random();
-            // 강화수치 반영
-            int minDamage = RawMinDamage + Reinforcement;
-            int maxDamage = RawMaxDamage + 2 * Reinforcement;
-
-            int damage = 0;
-            switch (rand.NextDouble())
+            foreach (Enchantment e in EnchantList)
             {
-                // 치명타인 경우
-                case double d when d <= CriticalChance:
-                    damage = rand.Next((int)Math.Floor((double)maxDamage * 1.6), (int)Math.Floor((double)maxDamage * 2));
-                    return new AttackInfo(true, true, damage, DamageType);
-                // 일반 공격인 경우
-                default:
-                    damage = rand.Next(minDamage, maxDamage);
-                    return new AttackInfo(true, false, damage, DamageType);
-            }
-        }
-
-        public override Weapon Clone()
-        {
-            Weapon w = new Weapon();
-            w.RawMaxDamage = RawMaxDamage;
-            w.RawMinDamage = RawMinDamage;
-            w.DamageType = DamageType;
-            w.CriticalChance = CriticalChance;
-            w.Accuracy = Accuracy;
-
-            w.Reinforcement = Reinforcement;
-            w.Quality = Quality;
-            w.Position = Position;
-            w.EnchantList = EnchantList.ConvertAll(en => new Enchantment(en.Type, en.Level));
-
-            w.Cost = Cost;
-            w.Name = Name;
-
-            return w;
-        }
-
-        public override void Enchant(Enchantment enchant)
-        {
-            switch (enchant.Type)
-            {
-                case EnchantmentType.Sharpness:
-                case EnchantmentType.AttackReinforcement:
-                case EnchantmentType.Heavyness:
-                case EnchantmentType.Accuracy:
-                    base.Enchant(enchant);
-                    break;
-
-                default:
-                    throw new ArgumentException("Weapon.Enchant : 무기에 할 수 없는 인챈트입니다.");
+                e.Apply(this);
             }
         }
     }
-
-    public class Armor : Equipable
-    {
-        public Stat Stat { get; set; }
-        public Resistance Resistance { get; set; }
-
-        // ====================생성자====================
-        public Armor(string name, int cost, int ac, int mr, 
-            Position pos, Quality quality) : base(name, cost, pos, 0, quality)
-        {
-            Stat = new Stat();
-            Stat.SetZero();
-            Stat.AC = ac;
-            Stat.MR = mr;
-            Resistance = new Resistance();
-        }
-
-        public Armor(string name, int cost, Stat stat, Position pos, Resistance r)
-            : base(name, cost, pos, 0, Quality.Common)
-        {
-            Stat = stat;
-            Resistance = (Resistance)r.Clone();
-        }
-
-        public Armor(string name, int cost, int ac, int mr, Position pos, int reinforcement, Quality quality, Resistance r) : base(name, cost, pos, reinforcement, quality)
-        {
-            Stat = new Stat();
-            Stat.SetZero();
-            Stat.AC = ac;
-            Stat.MR = mr;
-            Resistance = (Resistance)r.Clone();
-        }
-
-        // ====================메소드====================
-        public override Armor Clone()
-        {
-            Armor a = new Armor(Name, Cost, Stat.AC, Stat.MR, Position, Quality);
-            a.Stat = (Stat)Stat.Clone();
-            a.Resistance = (Resistance)Resistance.Clone();
-            return a;
-        }
-    }
-
-    // TODO : Accessory 종류 분화
-    public class Accessory : Equipable
-    {
-        public RingType Type { get; private set; }
-        public Stat? ChangeStats { get; private set; }
-        public Resistance? Resistance { get; private set; }
-        public Accessory(string name, int cost, RingType type, Stat? stat = null,
-            Resistance? resistance = null) : base(name, cost, Position.Accessory, 0, Quality.Common)
-        {
-            
-            Position = Position.Accessory;
-            Type = type;
-            switch(type)
-            {
-                case RingType.BaseStatUp:
-                    ChangeStats = (Stat?)stat?.Clone() 
-                        ?? throw new ArgumentNullException("Accessory : RingType이 BaseStatUp이지만 stat인자가 null입니다."); ;
-                    break;
-                case RingType.ResistanceUp:
-                    Resistance = (Resistance?)resistance?.Clone() 
-                        ?? throw new ArgumentNullException("Accessory : RingType이 ResistanceUp이지만 resistance인자가 null입니다.");
-                    break;
-                default:
-                    throw new ArgumentException("Accessory : 잘못된 RingType입니다.");
-            }
-        }
-
-        public override Accessory Clone()
-        {
-            return new Accessory(Name, Cost, Type, ChangeStats, Resistance);
-        }
-    }
-
+    
     //public class 
 
-    public class Consumable : Item
+    public abstract class Consumable : Item
     {
         public Consumable(string name, int cost) : base(name, cost)
         {
             
-        }
-        public virtual void Consume(Creature e) { 
-        
         }
     }
 }

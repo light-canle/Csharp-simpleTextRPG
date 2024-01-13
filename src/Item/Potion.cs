@@ -20,7 +20,7 @@ namespace VariousItem
         /// <summary>
         /// 해당 포션을 사용한다.
         /// </summary>
-        public override void Consume(Creature e)
+        public void Consume(Creature e)
         {
             e.AddEffect(Effect);
         }

@@ -1,3 +1,5 @@
+using VariousEntity;
+
 namespace Combat
 {
     // 포션이나 공격이 줄 수 있는 효과
@@ -113,6 +115,41 @@ namespace Combat
         public object Clone()
         {
             return new Effect(type: Type, strength: Strength, duration: Duration);
+        }
+
+        public void Apply(Creature creature)
+        {
+            Random rand = new Random();
+            switch (Type)
+            {
+                // 화상
+                case EffectType.Burn:
+                    // 불 저항 O : 저항% 만큼 대미지 감소
+                    // 불 저항 X : 체력의 Lv * 2 ~ Lv * 4% 만큼 피해를 입힘
+                    creature.Stat.HP -= (int)rand.NextDouble();
+                    break;
+                // 약화
+                case EffectType.Weakness:
+                    break;
+                // 시야 흐릿함
+                case EffectType.Blurry:
+                    break;
+                // 독
+                case EffectType.Poison:
+                    break;
+                // 용해
+                case EffectType.Dissolve:
+                    break;
+                // 재생
+                case EffectType.Regeneration:
+                    break;
+                // 힘
+                case EffectType.Strengthen: break;
+                case EffectType.Transparency: break;
+                case EffectType.Penetrate: break;
+
+            }
+            
         }
     }
 }

@@ -125,26 +125,12 @@ namespace Combat
             switch (r.NextDouble())
             {
                 case double d when d <= Accuracy:
-                    info = new AttackInfo(true, false, 0, DamageType);
+                    // 명중한 경우 나머지 검사는 무기에서 한다.
+                    info = Weapon.Attack();
                     break;
                 default:
                     info = new AttackInfo(false, false, 0, DamageType);
                     return info;
-            }
-            // 크리티컬 히트 여부 검사
-            switch (r.NextDouble())
-            {
-                case double d when d <= CriticalChance:
-                    damage = r.Next((int)(RawMaxDamage * 1.6), RawMaxDamage * 2 + 1);
-                    info.IsCritical = true;
-                    info.Damage = damage;
-                    break;
-
-                default:
-                    damage = r.Next(RawMinDamage, (RawMaxDamage + 1));
-                    info.IsCritical = false;
-                    info.Damage = damage;
-                    break;
             }
             return info;
         }

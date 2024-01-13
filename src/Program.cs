@@ -1,6 +1,7 @@
 ﻿using VariousEntity;
 using Utils;
 using Combat;
+using Spectre.Console;
 
 namespace C__RPG
 {
@@ -37,6 +38,12 @@ namespace C__RPG
                         break;
                 }
             }
+
+            /*Creature smile = new Creature(name:"슬라임", hp : 25, mp : 4, 
+                6, 5, 5, 5, 2, 0);
+            Player p = new Player(name: "aa", 30, 6, 8, 6, 5, 5, 0, 0);
+
+            Battle.WinRate(smile, p, 10000);*/
         }
     }
 }

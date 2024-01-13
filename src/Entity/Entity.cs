@@ -133,6 +133,7 @@ namespace VariousEntity
     public class Creature : Entity
     {
         public Stat Stat { get; protected set; }
+        public bool IsLive { get; protected set; }
         public List<Effect> Effects { get; protected set; }
         public List<Skill> Abilities { get; protected set; }
         public Resistance Resistance { get; protected set; }
@@ -141,6 +142,7 @@ namespace VariousEntity
         public Creature(string name) : base(name)
         {
             Stat = new Stat();
+            IsLive = true;
             Effects = new List<Effect>();
             Abilities = new List<Skill>();
             Resistance = new Resistance();
@@ -150,6 +152,7 @@ namespace VariousEntity
         {
             Stat = new Stat(hp : hp, mp : mp, strength : strength,
                 agility : agility, spell : spell, talent : talent, ac : ac, mr : mr);
+            IsLive = true;
             Effects = new List<Effect>();
             Abilities = new List<Skill>();
             Resistance = new Resistance();
@@ -159,9 +162,8 @@ namespace VariousEntity
         /// <summary>
         /// 인자로 받은 다른 크리쳐를 공격한다.
         /// </summary>
-        public virtual AttackInfo Attack(ref Creature c, Skill skill)
+        public virtual AttackInfo Attack(Creature c, Skill skill)
         {
-
             AttackInfo info = skill switch
             {
                 DamageSkill s => s.Damage(),
@@ -178,6 +180,7 @@ namespace VariousEntity
         public virtual void ApplyDamage(int damage)
         {
             Stat.HP = Stat.HP - damage;
+            CheckAlive();
         }
 
         /// <summary>
@@ -212,7 +215,16 @@ namespace VariousEntity
                     break;
             }
             // 최종 대미지만큼 체력을 감소시킨다.
-            Stat.HP = Stat.HP - final_damage;
+            if (final_damage > 0)
+            {
+                Stat.HP = Stat.HP - final_damage;
+            }
+            CheckAlive();
+        }
+
+        public void CheckAlive()
+        {
+            IsLive = !(Stat.HP == 0);
         }
 
 
@@ -229,16 +241,7 @@ namespace VariousEntity
             // 순차적으로 루프를 돌며 각각의 효과에 대한 상태 변화를 적용함
             for (int i = 0; i < Effects.Count; i++)
             {
-                switch (Effects[i].Type)
-                {
-                    // 화상
-                    case EffectType.Burn:
-                        // 불 저항 O : 저항% 만큼 대미지 감소
-                        // 불 저항 X : 체력의 Lv * 2 ~ Lv * 4% 만큼 피해를 입힘
-                        Stat.HP -= (int)rand.NextDouble();
-                        break;
-
-                }
+                
                 Effects[i].Duration -= 1;
             }
             // 여기서 Duration이 0이하가 된 효과들을 제거
@@ -318,7 +321,11 @@ namespace VariousEntity
         public Weapon? EquippedWeapon { get; private set; }
         public Armor?[] EquippedArmors { get; }
         public List<Accessory> EquippedAccessories { get; set; }
-        public ArmedEntity(string name) : base(name)
+        public ArmedEntity(string name,
+            int hp = 20, int mp = 5,
+            int strength = 5, int agility = 5, int spell = 5, int talent = 5,
+            int ac = 0, int mr = 0) : 
+            base(name, hp, mp, strength, agility, spell, talent, ac, mr)
         {
             EquippedWeapon = null;
             EquippedArmors = new Armor[3];
@@ -339,6 +346,7 @@ namespace VariousEntity
                     {
                         UnEquip<Weapon>(Position.Weapon);
                     }
+                    EquippedWeapon = w;
                     StatUpdate();
                     break;
                 case Armor a:
@@ -346,12 +354,15 @@ namespace VariousEntity
                     {
                         case Position.HeadArmor:
                             if (EquippedArmors[0] != null) UnEquip<Armor>(Position.HeadArmor);
+                            EquippedArmors[0] = a;
                             break;
                         case Position.TopArmor:
                             if (EquippedArmors[1] != null) UnEquip<Armor>(Position.TopArmor);
+                            EquippedArmors[1] = a;
                             break;
                         case Position.BottomArmor:
                             if (EquippedArmors[2] != null) UnEquip<Armor>(Position.BottomArmor);
+                            EquippedArmors[2] = a;
                             break;
                     }
                     StatUpdate();
@@ -427,6 +438,7 @@ namespace VariousEntity
             Resistance.Poison = Resistance.BasePoison;
             Resistance.Acid = Resistance.BaseAcid;
 
+            // 방어구에 의한 능력치 변화
             for (int i = 0; i < EquippedArmors.Length; i++)
             {
                 Stat.AC += EquippedArmors[i]?.Stat.AC ?? 0;
@@ -438,7 +450,7 @@ namespace VariousEntity
                 Resistance.Poison += EquippedArmors[i]?.Resistance.Poison ?? 0;
                 Resistance.Acid += EquippedArmors[i]?.Resistance.Acid ?? 0;
             }
-
+            // 장신구에 의한 능력치 변화
             for (int i = 0; i < EquippedAccessories.Count; i++)
             {
                 Stat.AC += EquippedAccessories[i].ChangeStats?.AC ?? 0;
