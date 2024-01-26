@@ -31,14 +31,4 @@ namespace VariousItem
             e.ApplyDamage(info);
         }
     }
-
-    public class ScrollOfUpgrade : Scroll
-    {
-        public ScrollOfUpgrade(string name, int cost) : base(name, cost) { }
-
-        public void Consume(Equipable i)
-        {
-            i.Reinforcement++;
-        }
-    }
 }

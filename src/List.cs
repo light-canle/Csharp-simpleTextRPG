@@ -8,10 +8,12 @@ namespace List
 
         static SkillList()
         {
-            Skills = new Dictionary<string, DamageSkill>();
-            Skills.Add("일반 공격", new Combat.DamageSkill("일반 공격", 1, 10, 0.03, 0.95));
-            Skills.Add("속공", new Combat.DamageSkill("속공", 1, 8, 0.06, 0.90));
-            Skills.Add("강공", new Combat.DamageSkill("강공", 2, 12, 0.03, 0.90));
+            Skills = new Dictionary<string, DamageSkill>
+            {
+                { "파이어볼 lv1", new Combat.DamageSkill("파이어볼 lv1", 3, 8, 0.05, 0.95, DamageType.Fire) },
+                { "화염 방사 lv1", new Combat.DamageSkill("화염 방사 lv1", 4, 11, 0.04, 0.90, DamageType.Fire) },
+                { "매직 미사일 lv1", new Combat.DamageSkill("매직 미사일 lv1", 2, 12, 0.03, 0.90, DamageType.Energy) }
+            };
         }
     }
 }

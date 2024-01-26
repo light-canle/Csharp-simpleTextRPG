@@ -170,6 +170,10 @@ namespace VariousEntity
                 _ => new AttackInfo(false, false, 0, DamageType.Normal)    
             };
             c.ApplyDamage(info);
+            if (info.Effect != null)
+            {
+                c.AddEffect(info.Effect.Clone() as Effect);
+            }
             return info;
         }
 
@@ -231,9 +235,8 @@ namespace VariousEntity
         /// <summary>
         /// 엔티티에게 걸려있는 효과들을 적용하는 함수
         /// </summary>
-        public virtual void ApplyEffect()
+        public virtual void ApplyEffect(bool printLog = true)
         {
-            Random rand = new Random();
             if (Effects.Count == 0)
             {
                 return;
@@ -241,7 +244,7 @@ namespace VariousEntity
             // 순차적으로 루프를 돌며 각각의 효과에 대한 상태 변화를 적용함
             for (int i = 0; i < Effects.Count; i++)
             {
-                
+                Effects[i].Apply(this, printLog);
                 Effects[i].Duration -= 1;
             }
             // 여기서 Duration이 0이하가 된 효과들을 제거
@@ -322,7 +325,7 @@ namespace VariousEntity
         public Armor?[] EquippedArmors { get; }
         public List<Accessory> EquippedAccessories { get; set; }
         public ArmedEntity(string name,
-            int hp = 20, int mp = 5,
+            int hp = 20, int mp = 6,
             int strength = 5, int agility = 5, int spell = 5, int talent = 5,
             int ac = 0, int mr = 0) : 
             base(name, hp, mp, strength, agility, spell, talent, ac, mr)

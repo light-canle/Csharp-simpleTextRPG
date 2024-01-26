@@ -15,7 +15,7 @@ namespace VariousItem
 
         // ====================생성자====================
         public Armor(string name, int cost, int ac, int mr,
-            Position pos, Quality quality) : base(name, cost, pos, 0, quality)
+            Position pos) : base(name, cost, pos)
         {
             Stat = new Stat();
             Stat.SetZero();
@@ -27,13 +27,14 @@ namespace VariousItem
         }
 
         public Armor(string name, int cost, Stat stat, Position pos, Resistance r)
-            : base(name, cost, pos, 0, Quality.Common)
+            : base(name, cost, pos)
         {
             Stat = stat;
             Resistance = (Resistance)r.Clone();
         }
 
-        public Armor(string name, int cost, int ac, int mr, Position pos, int reinforcement, Quality quality, Resistance r) : base(name, cost, pos, reinforcement, quality)
+        public Armor(string name, int cost, int ac, int mr, Position pos, Resistance r)
+            : base(name, cost, pos)
         {
             Stat = new Stat();
             Stat.SetZero();
@@ -47,26 +48,10 @@ namespace VariousItem
         // ====================메소드====================
         public override Armor Clone()
         {
-            Armor a = new Armor(Name, Cost, Stat.AC, Stat.MR, Position, Quality);
+            Armor a = new Armor(Name, Cost, Stat.AC, Stat.MR, Position);
             a.Stat = (Stat)Stat.Clone();
             a.Resistance = (Resistance)Resistance.Clone();
             return a;
-        }
-
-        public int ReturnAC()
-        {
-            Random rand = new Random();
-            Stat.AC = Stat.BaseAC;
-            UpdateEnchant();
-            return rand.Next(Stat.AC / 2, Stat.AC + 1);
-        }
-
-        public int ReturnMR()
-        {
-            Random rand = new Random();
-            Stat.MR = Stat.BaseMR;
-            UpdateEnchant();
-            return rand.Next(Stat.MR / 3, Stat.MR + 1);
         }
 
         public override void Enchant(Enchantment enchant)
@@ -76,11 +61,19 @@ namespace VariousItem
                 case EnchantmentType.Hardness:
                 case EnchantmentType.AntiMagic:
                     base.Enchant(enchant);
+                    UpdateEnchant();
                     break;
                 default:
                     throw new ArgumentException("Armor.Enchant() : 방어구에 할 수 없는 인챈트입니다.");
             }
             
+        }
+
+        public override void UpdateEnchant()
+        {
+            Stat.AC = Stat.BaseAC;
+            Stat.MR = Stat.BaseMR;
+            base.UpdateEnchant();
         }
     }
 }

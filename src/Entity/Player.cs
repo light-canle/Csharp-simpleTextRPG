@@ -24,7 +24,15 @@ namespace VariousEntity
 
         public void RemoveItem(Item item, int count = 1)
         {
-            Inventory.Remove(item);
+            int itemCount = Inventory[item];
+            if (itemCount > count) 
+            {
+                Inventory[item] -= count;
+            }
+            else
+            {
+                Inventory.Remove(item);
+            }
         }
     }
 }

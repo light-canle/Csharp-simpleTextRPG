@@ -16,13 +16,4 @@ namespace Events
             Description = description;
         }
     }
-
-    public class BattleEvent : Event
-    {
-        public List<Creature> EnemyList { get; private set; }
-        public BattleEvent(string name, string description) : base(name, description) 
-        {
-            EnemyList = new List<Creature>();
-        }
-    }
 }

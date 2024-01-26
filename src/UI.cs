@@ -79,6 +79,17 @@ namespace Utils
             s += " " + c.Stat.MP.ToString() + "/" + c.Stat.MaxMP.ToString();
 
             ColorPrint(0, 255, 255, s);
+
+            // 걸려있는 효과 목록
+            s = "[";
+            for (int i = 0; i < c.Effects.Count; i++)
+            {
+                s += c.Effects[i].Name() + "(" + c.Effects[i].Strength + "|"
+                    + c.Effects[i].Duration + "턴)";
+                if (i != c.Effects.Count - 1) s += ", ";
+            }
+            s += "]";
+            ColorPrint(255, 255, 255, s);
             Console.WriteLine();
         }
         
@@ -101,6 +112,28 @@ namespace Utils
             foreach (Skill s in p.Abilities)
             {
                 Console.WriteLine($"{s.Name}");
+            }
+        }
+
+        public static void PrintAttackInfo(Creature attacker, Creature target, Skill skill, AttackInfo info)
+        {
+            ColorPrint(255, 255, 255, $"{attacker.Name}의 {skill.Name}!");
+            if (info.IsCritical)
+            {
+                ColorPrint(255, 255, 0, "크리티컬 히트!!!");
+            }
+            Console.Write($"{target.Name}에게 {info.Damage}의 대미지를 주었다!");
+            if (info.Effect != null) 
+            {
+                ColorPrint(255, 128, 128, $" 추가적으로 {info.Effect.Name()} 효과를 주었다!");
+            }
+            else
+            {
+                Console.WriteLine();
+            }
+            if (target.Stat.HP <= 0)
+            {
+                Console.WriteLine($"{target.Name}(은)는 쓰러졌다!");
             }
         }
     }

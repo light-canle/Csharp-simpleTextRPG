@@ -11,7 +11,7 @@ namespace VariousItem
         public Stat? ChangeStats { get; private set; }
         public Resistance? Resistance { get; private set; }
         public Accessory(string name, int cost, RingType type, Stat? stat = null,
-            Resistance? resistance = null) : base(name, cost, Position.Accessory, 0, Quality.Common)
+            Resistance? resistance = null) : base(name, cost, Position.Accessory)
         {
             Position = Position.Accessory;
             Type = type;

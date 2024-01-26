@@ -15,8 +15,6 @@ namespace VariousItem
         public double CriticalChance { get; set; }
         public double CriticalPower { get; set; }
         public double Accuracy { get; set; }
-        public int Tier { get; set; }
-        public Stat RequireStat { get; set; }
 
         // ====================생성자====================
         public Weapon() : base("Air", 0, Position.Weapon)
@@ -28,11 +26,9 @@ namespace VariousItem
             CriticalChance = 0;
             CriticalPower = 0;
             Accuracy = 0;
-            Tier = 0;
-            RequireStat = new Stat();
-            RequireStat.SetZero();
+            DamageType = DamageType.Normal;
         }
-        public Weapon(string name, int cost, int minDmg, int maxDmg, double critChance, double critPower, double accuracy, Quality quality) : base(name, cost, Position.Weapon, 0, quality)
+        public Weapon(string name, int cost, int minDmg, int maxDmg, double critChance, double critPower, double accuracy, Quality quality) : base(name, cost, Position.Weapon)
         {
             RawMaxDamage = minDmg;
             MinDamage = RawMinDamage;
@@ -41,23 +37,20 @@ namespace VariousItem
             CriticalChance = critChance;
             CriticalPower = critPower;
             Accuracy = accuracy;
-            RequireStat = new Stat();
-            RequireStat.SetZero();
         }
         // ====================메소드====================
+        // TODO : WeaponSkill로 이전
         /// <summary>
         /// 이 무기의 기본 대미지를 반환한다.
         /// </summary>
         public AttackInfo Attack()
         {
             Random rand = new Random();
-            MinDamage = RawMinDamage;
-            MaxDamage = RawMaxDamage;
             // 인챈트 반영
             UpdateEnchant();
             // 강화수치 반영
-            int minDamage = MinDamage + Reinforcement;
-            int maxDamage = MaxDamage + 2 * Reinforcement;
+            int minDamage = MinDamage;
+            int maxDamage = MaxDamage;
 
             int damage = 0;
             switch (rand.NextDouble())
@@ -82,8 +75,6 @@ namespace VariousItem
             w.CriticalChance = CriticalChance;
             w.Accuracy = Accuracy;
 
-            w.Reinforcement = Reinforcement;
-            w.Quality = Quality;
             w.Position = Position;
             w.EnchantList = EnchantList.ConvertAll(en => new Enchantment(en.Type, en.Level));
 
@@ -107,6 +98,16 @@ namespace VariousItem
                 default:
                     throw new ArgumentException("Weapon.Enchant() : 무기에 할 수 없는 인챈트입니다.");
             }
+        }
+
+        public override void UpdateEnchant()
+        {
+            RawMaxDamage = RawMaxDamage;
+            RawMinDamage = RawMinDamage;
+            DamageType = DamageType;
+            CriticalChance = CriticalChance;
+            Accuracy = Accuracy;
+            base.UpdateEnchant();
         }
     }
 }

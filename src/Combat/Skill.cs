@@ -40,7 +40,7 @@ namespace Combat
         /// <param name="crit">치명타 확률</param>
         /// <param name="acc">명중률</param>
         /// <param name="type">대미지 타입</param>
-        public DamageSkill(string name, int min, int max, double crit, double acc,
+        public DamageSkill(string name, int min, int max, double crit = 0.05, double acc = 1.0,
         DamageType type = Combat.DamageType.Normal) : base(name)
         {
             RawMinDamage = min;
@@ -110,8 +110,8 @@ namespace Combat
             base(name, (int)(weapon.RawMinDamage * multiplier), (int)(weapon.RawMaxDamage * multiplier), 
                 weapon.CriticalChance, weapon.Accuracy, weapon.DamageType)
         {
-            Weapon = weapon.Clone();
-            Stat = (Stat)stat.Clone();
+            Weapon = weapon;
+            Stat = (Stat)stat;
         }
         /// <summary>
         /// 이 스킬의 대미지를 리턴한다.
@@ -120,7 +120,6 @@ namespace Combat
         {
             Random r = new Random();
             AttackInfo info;
-            int damage;
             // 명중 여부 검사
             switch (r.NextDouble())
             {

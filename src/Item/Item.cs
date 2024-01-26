@@ -65,6 +65,7 @@ namespace VariousItem
         public Enchantment(EnchantmentType type)
         {
             Type = type;
+            Level = 1;
         }
 
         public Enchantment(EnchantmentType type, int level)
@@ -78,6 +79,8 @@ namespace VariousItem
             return new Enchantment(Type, Level);
         }
 
+        // 인챈트를 적용하는 함수
+        // (!) 반드시 무기 스탯 초기화 후 사용
         public void Apply(Equipable equipable)
         {
             switch (Type)
@@ -164,16 +167,12 @@ namespace VariousItem
 
     public class Equipable : Item
     {
-        public int Reinforcement { get; set; }
-        public Quality Quality { get; set; }
         public Position Position { get; set; }
         public List<Enchantment> EnchantList { get; set; }
 
-        public Equipable(string name, int cost, Position pos, int reinforcement = 0, Quality quality = Quality.Common) : base(name, cost)
+        public Equipable(string name, int cost, Position pos) : base(name, cost)
         {
             Position = pos;
-            Reinforcement = reinforcement;
-            Quality = quality;
             EnchantList = new List<Enchantment>();
         }
 
@@ -183,8 +182,6 @@ namespace VariousItem
             e.Name = Name;
             e.Cost = Cost;
             e.Position = Position;
-            e.Reinforcement = Reinforcement;
-            e.Quality = Quality;
             e.EnchantList = EnchantList.ConvertAll(en => new Enchantment(en.Type, en.Level));
             return e;
         }
@@ -203,9 +200,14 @@ namespace VariousItem
         /// <summary>
         /// 인챈트 리스트 안에 있는 인챈트들을 바탕으로 장비의 속성을
         /// 변경한다.
+        /// (!중요) 적용 전에 스탯을 기본으로 변경해야 하므로 자식 클래스에서는
+        /// 반드시 이 메소드를 오버라이드 해서 구현할 것
         /// </summary>
         public virtual void UpdateEnchant()
         {
+            // 무기 스탯 초기화
+
+            // 인챈트 반영
             foreach (Enchantment e in EnchantList)
             {
                 e.Apply(this);

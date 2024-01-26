@@ -3,25 +3,7 @@ using VariousEntity;
 namespace Combat
 {
     // 포션이나 공격이 줄 수 있는 효과
-    public enum EffectType
-    {
-        // 디버프
-        Burn,   // 연소
-        Paralysis,  // 마비
-        Freezing,   // 빙결
-        Wet, // 젖음
-        Weakness, // 약화
-        Blurry, // 흐릿함(명중률 감소)
-        Poison, // 독
-        Dissolve, // 용해(산에 의해 녹음)
-
-        // 버프
-        Regeneration, // 재생
-        Strengthen, // 강화
-        Transparency, // 투명화
-        Penetrate, // 투시
-
-    }
+    
     // 공격의 종류
     public enum DamageType
     {
@@ -96,60 +78,6 @@ namespace Combat
             Damage = damage;
             DamageType = dType;
             Effect = effect;
-        }
-    }
-
-    public sealed class Effect : ICloneable
-    {
-        public EffectType Type { get; private set; }
-        public int Strength { get; set; }
-        public int Duration { get; set; }
-        // ====================생성자====================
-        public Effect(EffectType type = EffectType.Blurry, int strength = 1, int duration = 0)
-        {
-            Type = type;
-            Strength = strength;
-            Duration = duration;
-        }
-        // ====================메소드====================
-        public object Clone()
-        {
-            return new Effect(type: Type, strength: Strength, duration: Duration);
-        }
-
-        public void Apply(Creature creature)
-        {
-            Random rand = new Random();
-            switch (Type)
-            {
-                // 화상
-                case EffectType.Burn:
-                    // 불 저항 O : 저항% 만큼 대미지 감소
-                    // 불 저항 X : 체력의 Lv * 2 ~ Lv * 4% 만큼 피해를 입힘
-                    creature.Stat.HP -= (int)rand.NextDouble();
-                    break;
-                // 약화
-                case EffectType.Weakness:
-                    break;
-                // 시야 흐릿함
-                case EffectType.Blurry:
-                    break;
-                // 독
-                case EffectType.Poison:
-                    break;
-                // 용해
-                case EffectType.Dissolve:
-                    break;
-                // 재생
-                case EffectType.Regeneration:
-                    break;
-                // 힘
-                case EffectType.Strengthen: break;
-                case EffectType.Transparency: break;
-                case EffectType.Penetrate: break;
-
-            }
-            
         }
     }
 }

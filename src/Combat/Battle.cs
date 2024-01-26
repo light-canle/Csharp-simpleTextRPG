@@ -36,81 +36,57 @@ namespace Combat
                 // 민첩이 같으면 동시 공격
                 if (c1.Stat.Agility > c2.Stat.Agility)
                 {
-                    info = c1.Attack(c2, c1.Abilities[r.Next(c1.Abilities.Count)]);
-                    if (info.IsCritical)
-                    {
-                        TUI.ColorPrint(255, 255, 0, "크리티컬 히트!!!");
-                    }
-                    Console.WriteLine($"{c1.Name}(이)가 {c2.Name}에게 {info.Damage}의 대미지를 주었다!");
+                    Skill s = c1.Abilities[r.Next(c1.Abilities.Count)];
+                    info = c1.Attack(c2, s);
+                    TUI.PrintAttackInfo(c1, c2, s, info);
                     if (c2.Stat.HP <= 0)
                     {
-                        Console.WriteLine($"{c2.Name}(은)는 쓰러졌다!");
                         return 1;
                     }
-                    info = c2.Attack(c1, c2.Abilities[r.Next(c2.Abilities.Count)]);
-                    if (info.IsCritical)
-                    {
-                        TUI.ColorPrint(255, 255, 0, "크리티컬 히트!!!");
-                    }
-                    Console.WriteLine($"{c2.Name}(이)가 {c1.Name}에게 {info.Damage}의 대미지를 주었다!");
+                    s = c2.Abilities[r.Next(c2.Abilities.Count)];
+                    info = c2.Attack(c1, s);
+                    TUI.PrintAttackInfo(c2, c1, s, info);
                     if (c1.Stat.HP <= 0)
                     {
-                        Console.WriteLine($"{c1.Name}(은)는 쓰러졌다!");
                         return 2;
                     }
                 }
                 else if (c1.Stat.Agility < c2.Stat.Agility)
                 {
-                    info = c2.Attack(c1, c2.Abilities[r.Next(c2.Abilities.Count)]);
-                    if (info.IsCritical)
-                    {
-                        TUI.ColorPrint(255, 255, 0, "크리티컬 히트!!!");
-                    }
-                    Console.WriteLine($"{c2.Name}(이)가 {c1.Name}에게 {info.Damage}의 대미지를 주었다!");
+                    Skill s = c2.Abilities[r.Next(c2.Abilities.Count)];
+                    info = c2.Attack(c1, s);
+                    TUI.PrintAttackInfo(c2, c1, s, info);
                     if (c1.Stat.HP <= 0)
                     {
-                        Console.WriteLine($"{c1.Name}(은)는 쓰러졌다!");
                         return 2;
                     }
-                    info = c1.Attack(c2, c1.Abilities[r.Next(c1.Abilities.Count)]);
-                    if (info.IsCritical)
-                    {
-                        TUI.ColorPrint(255, 255, 0, "크리티컬 히트!!!");
-                    }
-                    Console.WriteLine($"{c1.Name}(이)가 {c2.Name}에게 {info.Damage}의 대미지를 주었다!");
+
+                    s = c1.Abilities[r.Next(c1.Abilities.Count)];
+                    info = c1.Attack(c2, s);
+                    TUI.PrintAttackInfo(c1, c2, s, info);
                     if (c2.Stat.HP <= 0)
                     {
-                        Console.WriteLine($"{c2.Name}(은)는 쓰러졌다!");
                         return 1;
                     }
                 }
                 else
                 {
-                    info = c1.Attack(c2, c1.Abilities[r.Next(c1.Abilities.Count)]);
-                    if (info.IsCritical)
-                    {
-                        TUI.ColorPrint(255, 255, 0, "크리티컬 히트!!!");
-                    }
-                    Console.WriteLine($"{c1.Name}(이)가 {c2.Name}에게 {info.Damage}의 대미지를 주었다!");
-                    info = c2.Attack(c1, c2.Abilities[r.Next(c2.Abilities.Count)]);
-                    if (info.IsCritical)
-                    {
-                        TUI.ColorPrint(255, 255, 0, "크리티컬 히트!!!");
-                    }
-                    Console.WriteLine($"{c2.Name}(이)가 {c1.Name}에게 {info.Damage}의 대미지를 주었다!");
+                    Skill s = c1.Abilities[r.Next(c1.Abilities.Count)];
+                    info = c1.Attack(c2, s);
+                    TUI.PrintAttackInfo(c1, c2, s, info);
+                    s = c2.Abilities[r.Next(c2.Abilities.Count)];
+                    info = c2.Attack(c1, s);
+                    TUI.PrintAttackInfo(c2, c1, s, info);
                     if (c1.Stat.HP <= 0 && c2.Stat.HP <= 0)
                     {
-                        Console.WriteLine($"{c1.Name}(과)와 {c2.Name}(은)는 동시에 쓰러졌다!");
                         return 0;
                     }
                     if (c1.Stat.HP <= 0)
                     {
-                        Console.WriteLine($"{c1.Name}(은)는 쓰러졌다!");
                         return 2;
                     }
                     if (c2.Stat.HP <= 0)
                     {
-                        Console.WriteLine($"{c2.Name}(은)는 쓰러졌다!");
                         return 1;
                     }
                 }
@@ -146,8 +122,8 @@ namespace Combat
                 while (true)
                 {
                     // 효과 적용
-                    fighter1.ApplyEffect();
-                    fighter2.ApplyEffect();
+                    fighter1.ApplyEffect(false);
+                    fighter2.ApplyEffect(false);
 
                     // 공격
                     // 민첩이 높은 크리쳐가 우선 공격
@@ -213,7 +189,7 @@ namespace Combat
                 
             return (f1Win, f2Win, draw);
         }
-        /*
+        
         public static int PlayerVSEnemy(Player p, Creature c)
         {
             if (p == null) throw new ArgumentNullException("플레이어는 null일 수 없습니다.");
@@ -260,6 +236,16 @@ namespace Combat
                             .AddChoices(new[] {
                             "일반 공격", "강공", "속공"
                         }));
+                        switch (choice2)
+                        {
+                            case "일반 공격":
+                                
+                                break;
+                            case "강공":
+                                break;
+                            case "속공":
+                                break;
+                        }
                     }
                     // 무기가 있음
                     else
@@ -275,13 +261,13 @@ namespace Combat
                         switch (choice2)
                         {
                             case "일반 공격":
-                                info = p.Attack(ref c, new WeaponSkill("일반 공격", p.EquippedWeapon, p.Stat, 1.0));
+                                info = p.Attack(c, new WeaponSkill("일반 공격", p.EquippedWeapon, p.Stat, 1.0));
                                 break;
                             case "강공":
-                                info = p.Attack(ref c, new WeaponSkill("강공", p.EquippedWeapon, p.Stat, 1.4));
+                                info = p.Attack(c, new WeaponSkill("강공", p.EquippedWeapon, p.Stat, 1.4));
                                 break;
                             case "속공":
-                                info = p.Attack(ref c, new WeaponSkill("속공", p.EquippedWeapon, p.Stat, 0.7));
+                                info = p.Attack(c, new WeaponSkill("속공", p.EquippedWeapon, p.Stat, 0.7));
                                 break;
                         }
 
@@ -294,9 +280,7 @@ namespace Combat
                     new SelectionPrompt<string>()
                         .Title($"[green]{p.Name}[/]은(는) 어떤 스킬을 사용할까?")
                         .PageSize(10)
-                        .AddChoices(new[] {
-                        "일반 공격", "강공", "속공"
-                    }));
+                        .AddChoices(p.Abilities.Select((skill) => skill.Name)));
                 }
                 else if (choice == "행동")
                 {
@@ -307,9 +291,10 @@ namespace Combat
                         .AddChoices(new[] {
                         "방어 태세"
                     }));
-                    if (choice2 == "방어 태세")
+                    switch (choice2)
                     {
-
+                        case "방어 태세":
+                            break;
                     }
                 }
                 else if (choice == "아이템")
@@ -321,8 +306,8 @@ namespace Combat
                         .PageSize(10)
                         .AddChoices(p.Inventory.Keys 
                                     .Where((item) => item is Consumable) 
-                                    .Select((item) => $"{item.Name} x {p.Inventory[]}")
-                    );
+                                    .Select((item) => $"{item.Name}")
+                    ));
                 }
                 else if (choice == "도망가기")
                 {
@@ -331,7 +316,7 @@ namespace Combat
                     if (r.NextDouble() < 0.5 * (double)p.Stat.Agility / (double)c.Stat.Agility)
                     {
                         AnsiConsole.WriteLine($"[green]{p.Name}[/](은)는 무사히 도망쳤다!");
-                        break;
+                        return 0;
                     }
                     // 도망 실패 시 턴을 소비한 것으로 간주함
                 }
@@ -346,10 +331,10 @@ namespace Combat
         /// <param name="attacker">공격하는 크리쳐</param>
         /// <param name="defender">공격받는 크리쳐</param>
         /// <returns>공격자가 상대를 쓰러뜨리면 1, 그외에는 0을 반환한다.</returns>
-        private int TryAttack(ref Creature attacker, ref Creature defender)
+        private int TryAttack(Creature attacker, Creature defender)
         {
             return 0;
         }
-        */
+        
     }
 }

@@ -16,6 +16,7 @@ namespace C__RPG.src
         public Map() 
         {
             WorldMap = new Event[WORLDSIZE, WORLDSIZE];
+
         }
     }
 }
