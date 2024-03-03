@@ -10,16 +10,18 @@ namespace Combat
     public class Skill : ICloneable
     {
         public string Name { get; protected set; }
+        public int MpPoint { get; protected set; }
 
         // ====================생성자====================
-        public Skill(string name)
+        public Skill(string name, int mp = 0)
         {
             Name = name;
+            MpPoint = mp;
         }
         
         public virtual object Clone()
         {
-            return new Skill(Name);
+            return new Skill(Name, MpPoint);
         }
     }
 
@@ -41,7 +43,7 @@ namespace Combat
         /// <param name="acc">명중률</param>
         /// <param name="type">대미지 타입</param>
         public DamageSkill(string name, int min, int max, double crit = 0.05, double acc = 1.0,
-        DamageType type = Combat.DamageType.Normal) : base(name)
+        DamageType type = Combat.DamageType.Normal, int mpPoint = 0) : base(name, mpPoint)
         {
             RawMinDamage = min;
             RawMaxDamage = max;
@@ -90,7 +92,7 @@ namespace Combat
         public override object Clone()
         {
             return new DamageSkill(Name, RawMinDamage, RawMaxDamage,
-                CriticalChance, Accuracy, DamageType);
+                CriticalChance, Accuracy, DamageType, MpPoint);
         }
     }
 
@@ -106,9 +108,9 @@ namespace Combat
         /// <param name="weapon">기반 무기</param>
         /// <param name="stat">스킬 사용자의 스탯</param>
         /// <param name="multiplier">공격력 계수</param>
-        public WeaponSkill(string name, Weapon weapon, Stat stat, double multiplier) :
+        public WeaponSkill(string name, Weapon weapon, Stat stat, double multiplier, int mpPoint = 0) :
             base(name, (int)(weapon.RawMinDamage * multiplier), (int)(weapon.RawMaxDamage * multiplier), 
-                weapon.CriticalChance, weapon.Accuracy, weapon.DamageType)
+                weapon.CriticalChance, weapon.Accuracy, weapon.DamageType, mpPoint)
         {
             Weapon = weapon;
             Stat = (Stat)stat;
@@ -136,7 +138,7 @@ namespace Combat
 
         public override WeaponSkill Clone()
         {
-            return new WeaponSkill(Name, Weapon, Stat, Multiplier);
+            return new WeaponSkill(Name, Weapon, Stat, Multiplier, MpPoint);
         }
     }
 
@@ -158,8 +160,8 @@ namespace Combat
         /// <param name="type">대미지 타입</param>
         /// <param name="conjurer">스킬을 사용하는 크리쳐</param>
         public MagicSkill(string name, int min, int max, double crit, double acc, 
-            DamageType type, int level, int manacost, Stat conjurer)
-            : base(name, min, max, crit, acc, type)
+            DamageType type, int level, int manacost, Stat conjurer, int mpPoint)
+            : base(name, min, max, crit, acc, type, mpPoint)
         {
             Conjurer = conjurer;
             Level = level;
@@ -204,7 +206,7 @@ namespace Combat
         public override MagicSkill Clone()
         {
             return new MagicSkill(Name, RawMinDamage, RawMaxDamage, 
-                CriticalChance, Accuracy, DamageType, Level, ManaCost, Conjurer);
+                CriticalChance, Accuracy, DamageType, Level, ManaCost, Conjurer, MpPoint);
         }
     }
 
@@ -223,8 +225,8 @@ namespace Combat
         /// <param name="effchance">버프/디버프 확률</param>
         /// <param name="type">대미지 타입</param>
         /// <param name="give">주려는 효과(반드시 new로 생성해서 넣을 것)</param>
-        public EffectSkill(string name, int min, int max, double crit, double acc, double effchance, DamageType type, Effect give):
-            base(name, min, max, crit, acc, type)
+        public EffectSkill(string name, int min, int max, double crit, double acc, double effchance, DamageType type, Effect give, int mpPoint):
+            base(name, min, max, crit, acc, type, mpPoint)
         {
             EffectChance = effchance;
             GiveEffect = give;
@@ -284,7 +286,7 @@ namespace Combat
         {
             return new EffectSkill(Name, RawMinDamage, RawMaxDamage, 
                 CriticalChance, Accuracy, 
-                EffectChance, DamageType, GiveEffect);
+                EffectChance, DamageType, GiveEffect, MpPoint);
         }
     }
 

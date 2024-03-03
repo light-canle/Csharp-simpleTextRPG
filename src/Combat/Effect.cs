@@ -49,6 +49,7 @@ namespace Combat
         public void Apply(Creature creature, bool printLog = true)
         {
             Random rand = new Random();
+            // 약화, 강화, 흐릿함은 여기가 아니라 skill 쪽에서 처리한다.
             switch (Type)
             {
                 // 화상

@@ -169,11 +169,12 @@ namespace VariousEntity
                 DamageSkill s => s.Damage(),
                 _ => new AttackInfo(false, false, 0, DamageType.Normal)    
             };
-            c.ApplyDamage(info);
+            int finalDamage = c.ApplyDamage(info);
             if (info.Effect != null)
             {
                 c.AddEffect(info.Effect.Clone() as Effect);
             }
+            info.Damage = finalDamage;
             return info;
         }
 
@@ -181,16 +182,17 @@ namespace VariousEntity
         /// 방어력/저항을 모두 무시하고, damage만큼 체력을 깎는다.
         /// </summary>
         /// <param name="damage">입힐 대미지</param>
-        public virtual void ApplyDamage(int damage)
+        public virtual int ApplyDamage(int damage)
         {
             Stat.HP = Stat.HP - damage;
             CheckAlive();
+            return damage;
         }
 
         /// <summary>
         /// 상대가 반환한 공격의 대미지를 방어력에 따라 줄인 뒤 대미지와 효과를 적용한다.
         /// </summary>
-        public virtual void ApplyDamage(AttackInfo attackInfo)
+        public virtual int ApplyDamage(AttackInfo attackInfo)
         {
             Random rand = new Random();
             int final_damage = attackInfo.Damage;
@@ -224,6 +226,7 @@ namespace VariousEntity
                 Stat.HP = Stat.HP - final_damage;
             }
             CheckAlive();
+            return final_damage < 0 ? 0 : final_damage;
         }
 
         public void CheckAlive()

@@ -9,10 +9,10 @@ namespace C__RPG
     {
         static void Main(string[] args)
         {
-            Creature e1 = new Creature("aa", 75, 25, 6, 7, 6, 5, 2, 0);
-            Creature e2 = new Creature("bb", 70, 20, 5, 6, 7, 5, 3, 0);
-            DamageSkill s1 = new EffectSkill("test", 3, 10, 0.1, 1, 1, DamageType.Normal, new Effect(EffectType.Burn, 1, 2));
-            DamageSkill s2 = new DamageSkill("test2", 2, 6, 0.16, 1);
+            Creature e1 = new Creature("aa", 275, 25, 6, 7, 6, 5, 2, 0);
+            Creature e2 = new Creature("bb", 270, 20, 5, 6, 7, 5, 3, 0);
+            DamageSkill s1 = new DamageSkill("몸통박치기", 10, 15);
+            DamageSkill s2 = new DamageSkill("기습", 3, 12, 0.33, 0.6);
             e1.Abilities.Add(s1);
             e1.Abilities.Add(s2);
             e2.Abilities.Add(s1);
